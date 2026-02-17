@@ -1,44 +1,39 @@
-import { useState, useEffect, useRef } from 'react';
+import { useRef, useCallback } from 'react';
 
 /**
- * useMouseParallax - Custom hook for smooth orbital parallax effect
- * Returns normalized mouse position with smoothing for camera movement
+ * useMouseParallax - Optimized mouse parallax using refs (no re-renders)
+ * Returns a ref object with { x, y } that updates every frame via rAF
  */
 const useMouseParallax = (smoothing = 0.05) => {
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-    const targetPosition = useRef({ x: 0, y: 0 });
-    const animationFrame = useRef(null);
+    const position = useRef({ x: 0, y: 0 });
+    const target = useRef({ x: 0, y: 0 });
+    const frameId = useRef(null);
+    const initialized = useRef(false);
 
-    useEffect(() => {
+    // Initialize only once
+    if (!initialized.current) {
+        initialized.current = true;
+
         const handleMouseMove = (event) => {
-            // Normalize to -1 to 1 range
-            targetPosition.current = {
+            target.current = {
                 x: (event.clientX / window.innerWidth) * 2 - 1,
                 y: -(event.clientY / window.innerHeight) * 2 + 1
             };
         };
 
         const animate = () => {
-            setMousePosition((prev) => ({
-                x: prev.x + (targetPosition.current.x - prev.x) * smoothing,
-                y: prev.y + (targetPosition.current.y - prev.y) * smoothing
-            }));
-
-            animationFrame.current = requestAnimationFrame(animate);
+            position.current = {
+                x: position.current.x + (target.current.x - position.current.x) * smoothing,
+                y: position.current.y + (target.current.y - position.current.y) * smoothing
+            };
+            frameId.current = requestAnimationFrame(animate);
         };
 
         window.addEventListener('mousemove', handleMouseMove);
-        animationFrame.current = requestAnimationFrame(animate);
+        frameId.current = requestAnimationFrame(animate);
+    }
 
-        return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-            if (animationFrame.current) {
-                cancelAnimationFrame(animationFrame.current);
-            }
-        };
-    }, [smoothing]);
-
-    return mousePosition;
+    return position;
 };
 
 export default useMouseParallax;

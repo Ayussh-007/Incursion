@@ -1,91 +1,189 @@
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text, Center } from '@react-three/drei';
 import * as THREE from 'three';
 
 /**
- * IncursionTitle - Ultra-detailed 3D brushed steel typography with crimson glow and glitch effects
+ * IncursionTitle - Ultra-detailed 3D brushed black steel typography
+ * Features:
+ * - Brushed steel with crimson fracture glow
+ * - Electromagnetic glitch ripples
+ * - Pulsing between crimson energy and cold metallic grey
+ * - Fracture + advance animation on Enter press
  */
-function IncursionTitle() {
-    const titleRef = useRef();
+function IncursionTitle({ onFractureComplete }) {
     const groupRef = useRef();
     const glitchTimer = useRef(0);
     const pulsePhase = useRef(0);
+    const entranceStart = useRef(null);
+    const [visible, setVisible] = useState(false);
+    const [animPhase, setAnimPhase] = useState(0); // 0=hidden, 1=entering, 2=idle, 3=fracturing
+    const [fractured, setFractured] = useState(false);
 
-    // Advanced brushed steel material with procedural details
+    // Entrance timing
+    useEffect(() => {
+        const t1 = setTimeout(() => {
+            setVisible(true);
+            setAnimPhase(1);
+            entranceStart.current = performance.now();
+        }, 1200);
+
+        const t2 = setTimeout(() => {
+            setAnimPhase(2);
+        }, 3500);
+
+        return () => {
+            clearTimeout(t1);
+            clearTimeout(t2);
+        };
+    }, []);
+
+    // Listen for fracture trigger from parent
+    const triggerFracture = useCallback(() => {
+        if (animPhase === 2 && !fractured) {
+            setAnimPhase(3);
+            setFractured(true);
+            setTimeout(() => {
+                if (onFractureComplete) onFractureComplete();
+            }, 1000);
+        }
+    }, [animPhase, fractured, onFractureComplete]);
+
+    // Expose trigger through ref pattern
+    useEffect(() => {
+        window.__incursionTitleFracture = triggerFracture;
+        return () => { delete window.__incursionTitleFracture; };
+    }, [triggerFracture]);
+
+    // Brushed dark steel material
     const steelMaterial = useMemo(() => {
         return new THREE.MeshStandardMaterial({
-            color: 0x0a0a0a,  // Very dark steel
-            metalness: 0.95,
-            roughness: 0.35,
-            emissive: new THREE.Color(0xdc143c), // Crimson
-            emissiveIntensity: 0.2,
-            flatShading: false,
-            envMapIntensity: 1.5
+            color: 0x0e0e1a,
+            metalness: 0.97,
+            roughness: 0.18,
+            emissive: new THREE.Color(0x000000),
+            emissiveIntensity: 0.0,
+            envMapIntensity: 2.0
         });
     }, []);
 
-    // Advanced animation: pulsing glow + electromagnetic glitches
     useFrame((state, delta) => {
-        if (!titleRef.current || !groupRef.current) return;
+        if (!groupRef.current) return;
 
-        // Smooth pulsing between crimson and metallic grey
-        pulsePhase.current += delta * 0.6;
-        const pulse = Math.sin(pulsePhase.current) * 0.5 + 0.5;
+        const elapsed = state.clock.elapsedTime;
 
-        // Fluctuate emissive intensity (0.15 to 0.5)
-        steelMaterial.emissiveIntensity = 0.15 + pulse * 0.35;
+        // ===== ENTRANCE (Phase 1) =====
+        if (animPhase === 1) {
+            const entryDuration = 2.2;
+            const t = Math.min((elapsed - 1.2) / entryDuration, 1.0);
+            const eased = 1.0 - Math.pow(1.0 - t, 4); // Ease out quartic
 
-        // Subtle color shift between crimson and darker grey
-        const crimsonInfluence = pulse;
-        steelMaterial.emissive.setRGB(
-            0.5 + crimsonInfluence * 0.36,  // R: 0.5 to 0.86
-            crimsonInfluence * 0.08,         // G: 0 to 0.08
-            crimsonInfluence * 0.24          // B: 0 to 0.24
-        );
+            // Scale from small to full
+            const scale = 0.2 + eased * 0.8;
+            groupRef.current.scale.set(scale, scale, scale);
 
-        // Controlled electromagnetic glitch ripple (every 3-5 seconds)
-        glitchTimer.current += delta;
+            // Emissive ramp
+            steelMaterial.emissiveIntensity = eased * 0.5;
+            steelMaterial.emissive.setRGB(0.86 * eased, 0.08 * eased, 0.24 * eased);
 
-        if (glitchTimer.current > 3.0 + Math.random() * 2.0) {
-            glitchTimer.current = 0;
+            // Z approach
+            groupRef.current.position.z = -3 + eased * 3;
 
-            // Brief controlled distortion
-            const glitchIntensity = 0.08;
-            const glitchX = (Math.random() - 0.5) * glitchIntensity;
-            const glitchY = (Math.random() - 0.5) * glitchIntensity * 0.5;
-            const glitchRotation = (Math.random() - 0.5) * 0.02;
+            // Random glitch flickers during entrance
+            if (Math.random() < 0.06) {
+                groupRef.current.position.x = (Math.random() - 0.5) * 0.2;
+                groupRef.current.rotation.z = (Math.random() - 0.5) * 0.03;
+            } else {
+                groupRef.current.position.x *= 0.88;
+                groupRef.current.rotation.z *= 0.88;
+            }
+        }
 
-            groupRef.current.position.x += glitchX;
-            groupRef.current.position.y += glitchY;
-            groupRef.current.rotation.z += glitchRotation;
+        // ===== IDLE (Phase 2) =====
+        if (animPhase === 2) {
+            // Settle
+            groupRef.current.position.x *= 0.92;
+            groupRef.current.position.z = 0;
+            groupRef.current.rotation.z *= 0.92;
+            groupRef.current.scale.set(1, 1, 1);
 
-            // Quick recovery (not instant, smoother)
-            setTimeout(() => {
-                if (groupRef.current) {
-                    groupRef.current.position.x -= glitchX * 0.7;
-                    groupRef.current.position.y -= glitchY * 0.7;
-                    groupRef.current.rotation.z -= glitchRotation * 0.7;
-                }
-            }, 30);
+            // Pulse between crimson energy and cold metallic grey
+            pulsePhase.current += delta * 0.4;
+            const pulse = Math.sin(pulsePhase.current) * 0.5 + 0.5;
+            const slowPulse = Math.sin(pulsePhase.current * 0.3) * 0.5 + 0.5;
 
-            setTimeout(() => {
-                if (groupRef.current) {
-                    groupRef.current.position.set(0, 0, 0);
-                    groupRef.current.rotation.set(0, 0, 0);
-                }
-            }, 60);
+            steelMaterial.emissiveIntensity = 0.1 + pulse * 0.4;
+
+            // Transition between crimson and cold grey
+            const r = 0.3 + pulse * 0.56;
+            const g = pulse * 0.06;
+            const b = 0.08 + slowPulse * 0.16;
+            steelMaterial.emissive.setRGB(r, g, b);
+
+            // Slight roughness variation for micro-scratch illusion
+            steelMaterial.roughness = 0.18 + Math.sin(elapsed * 1.2) * 0.04;
+
+            // Electromagnetic glitch every 4-7s
+            glitchTimer.current += delta;
+            if (glitchTimer.current > 4.0 + Math.random() * 3.0) {
+                glitchTimer.current = 0;
+
+                // Controlled ripple distortion
+                const intensity = 0.06;
+                groupRef.current.position.x = (Math.random() - 0.5) * intensity;
+                groupRef.current.position.y = (Math.random() - 0.5) * intensity * 0.3;
+                groupRef.current.rotation.z = (Math.random() - 0.5) * 0.015;
+
+                // Brief emissive spike
+                steelMaterial.emissiveIntensity = 0.8;
+
+                setTimeout(() => {
+                    if (groupRef.current) {
+                        groupRef.current.position.x = 0;
+                        groupRef.current.position.y = Math.sin(elapsed * 0.5) * 0.015;
+                        groupRef.current.rotation.z = 0;
+                    }
+                }, 100);
+            }
+
+            // Subtle floating
+            groupRef.current.position.y = Math.sin(elapsed * 0.5) * 0.015;
+        }
+
+        // ===== FRACTURING (Phase 3) =====
+        if (animPhase === 3) {
+            const fractureT = Math.min((state.clock.elapsedTime - (elapsed - delta)) * 2 + (groupRef.current.position.z / 20), 1);
+
+            // Rapidly advance toward camera
+            groupRef.current.position.z += delta * 25;
+            groupRef.current.scale.multiplyScalar(1 + delta * 3);
+
+            // Intense glow
+            steelMaterial.emissiveIntensity = 2.0;
+            steelMaterial.emissive.setRGB(0.86, 0.08, 0.24);
+            steelMaterial.opacity = Math.max(0, 1 - groupRef.current.position.z / 15);
+
+            // Shake
+            groupRef.current.position.x = (Math.random() - 0.5) * 0.3;
+            groupRef.current.position.y = (Math.random() - 0.5) * 0.2;
+            groupRef.current.rotation.z = (Math.random() - 0.5) * 0.1;
+
+            // Hide when past camera
+            if (groupRef.current.position.z > 15) {
+                setVisible(false);
+            }
         }
     });
 
+    if (!visible) return null;
+
     return (
-        <group ref={groupRef} position={[0, 0, 0]}>
+        <group ref={groupRef} position={[0, 0.8, -3]} scale={[0.2, 0.2, 0.2]}>
             <Center>
                 <Text
-                    ref={titleRef}
-                    fontSize={0.8}
-                    letterSpacing={0.1}
-                    maxWidth={10}
+                    fontSize={1.2}
+                    letterSpacing={0.18}
+                    maxWidth={14}
                     textAlign="center"
                     anchorX="center"
                     anchorY="middle"
@@ -96,12 +194,13 @@ function IncursionTitle() {
                 </Text>
             </Center>
 
-            {/* Point lights for enhanced metallic reflections */}
-            <pointLight position={[2, 1, 2]} intensity={0.5} color="#ff4466" />
-            <pointLight position={[-2, -1, 2]} intensity={0.3} color="#4466ff" />
+            {/* Dynamic lighting for metallic reflections */}
+            <pointLight position={[3, 1, 2]} intensity={0.6} color="#dc143c" distance={10} />
+            <pointLight position={[-3, -1, 2]} intensity={0.4} color="#3344aa" distance={10} />
+            <pointLight position={[0, 0, 3]} intensity={0.2} color="#ffffff" distance={8} />
+            <pointLight position={[0, -2, 1]} intensity={0.15} color="#dc143c" distance={6} />
         </group>
     );
 }
 
 export default IncursionTitle;
-

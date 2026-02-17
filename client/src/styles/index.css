@@ -1,20 +1,69 @@
+/* ===== INCURSION — Global Design System ===== */
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;500;700;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap');
+
+:root {
+    /* Core palette */
+    --ink: #000000;
+    --void: #020408;
+    --deep: #040810;
+    --surface: #0a0e1a;
+    --muted: #1a1e2e;
+
+    /* Accent colors */
+    --crimson: #dc143c;
+    --crimson-dim: rgba(220, 20, 60, 0.4);
+    --crimson-glow: rgba(220, 20, 60, 0.15);
+    --cyan: #00ffff;
+    --cyan-dim: rgba(0, 255, 255, 0.4);
+    --cyan-glow: rgba(0, 255, 255, 0.1);
+    --steel: #8090a0;
+    --steel-dark: #2a3040;
+
+    /* Text */
+    --text-primary: #e8eaf0;
+    --text-secondary: rgba(200, 210, 220, 0.6);
+    --text-dim: rgba(150, 160, 175, 0.4);
+
+    /* Typography */
+    --font-display: 'Orbitron', sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+html,
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #000000;
-    color: #ffffff;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
+}
+
+body {
+    font-family: var(--font-body);
+    background: var(--ink);
+    color: var(--text-primary);
     user-select: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
     width: 100vw;
     height: 100vh;
+    overflow: hidden;
+}
+
+.app {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
 }
 
 /* Prevent text selection and drag on 3D canvas */
@@ -24,4 +73,101 @@ canvas {
     -webkit-user-select: none;
     -moz-user-select: none;
     user-select: none;
+}
+
+/* ===== Global Fade Overlay ===== */
+.global-fade-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--ink);
+    z-index: 9999;
+}
+
+/* ===== Loading Screen ===== */
+.loading-screen {
+    width: 100vw;
+    height: 100vh;
+    background: var(--ink);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+}
+
+.loading-text {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    letter-spacing: 4px;
+    color: var(--cyan-dim);
+    animation: loadPulse 2s ease-in-out infinite;
+}
+
+.loading-bar {
+    width: 200px;
+    height: 2px;
+    background: rgba(0, 255, 255, 0.08);
+    border-radius: 1px;
+    overflow: hidden;
+}
+
+.loading-fill {
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    animation: loadSlide 1.5s ease-in-out infinite;
+}
+
+@keyframes loadPulse {
+
+    0%,
+    100% {
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+@keyframes loadSlide {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(350%);
+    }
+}
+
+/* ===== Game Scene ===== */
+.game-scene {
+    width: 100vw;
+    height: 100vh;
+    background: var(--void);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.game-ready-text {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 700;
+    letter-spacing: 6px;
+    color: var(--text-primary);
+    text-shadow: 0 0 20px var(--crimson-dim), 0 0 40px var(--crimson-glow);
+}
+
+.game-sub-text {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    animation: loadPulse 2s ease-in-out infinite;
 }

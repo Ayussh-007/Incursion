@@ -1,27 +1,42 @@
 .transmission-overlay {
   position: fixed;
-  top: 0;
+  bottom: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 40%;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
+  padding-bottom: 8vh;
   pointer-events: none;
   z-index: 100;
+  animation: transmissionFadeIn 2s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes transmissionFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .transmission-container {
   text-align: center;
-  color: #00ffff;
-  font-family: 'Courier New', monospace;
+  color: var(--cyan, #00ffff);
+  font-family: var(--font-mono, 'Courier New', monospace);
   text-transform: uppercase;
   letter-spacing: 0.3em;
   position: relative;
 }
 
 .transmission-container.glitch {
-  animation: glitchShake 0.3s ease-in-out, chromaticAberration 0.15s;
+  animation: glitchShake 0.2s ease-in-out, chromaticAberration 0.12s;
 }
 
 /* Alien glyphs container */
@@ -30,29 +45,60 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.8rem;
-  margin-bottom: 3rem;
+  gap: 0.6rem;
+  margin-bottom: 2.5rem;
 }
 
 .glyph {
   display: inline-block;
-  animation: flicker 2.5s infinite;
-  color: #ff0055;
+  animation: glyphPulse 6s ease-in-out infinite;
+  color: #dc143c;
   stroke: currentColor;
-  filter: drop-shadow(0 0 8px #ff0055) drop-shadow(0 0 16px #ff0033);
-  opacity: 0.9;
+  filter: drop-shadow(0 0 4px rgba(220, 20, 60, 0.5)) drop-shadow(0 0 10px rgba(220, 20, 60, 0.2));
+  opacity: 0.8;
+}
+
+/* 6-second glitch pulse with RGB shift */
+@keyframes glyphPulse {
+
+  0%,
+  85%,
+  100% {
+    opacity: 0.8;
+    transform: translate(0);
+    filter: drop-shadow(0 0 4px rgba(220, 20, 60, 0.5)) drop-shadow(0 0 10px rgba(220, 20, 60, 0.2));
+  }
+
+  87% {
+    opacity: 1;
+    transform: translate(-1px, 0.5px);
+    filter: drop-shadow(2px 0 0 rgba(255, 0, 50, 0.5)) drop-shadow(-2px 0 0 rgba(0, 200, 255, 0.3));
+  }
+
+  89% {
+    opacity: 0.6;
+    transform: translate(1.5px, -0.5px);
+    filter: drop-shadow(-1px 0 0 rgba(255, 0, 50, 0.4)) drop-shadow(1px 0 0 rgba(0, 200, 255, 0.25));
+  }
+
+  91% {
+    opacity: 0.9;
+    transform: translate(0);
+    filter: drop-shadow(0 0 6px rgba(220, 20, 60, 0.6));
+  }
 }
 
 /* System message */
 .system-message {
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
 }
 
 .message-line {
-  font-size: 1.3rem;
-  margin: 1.2rem 0;
-  text-shadow: 0 0 10px #00ffff, 0 0 20px #00aaff, 0 0 30px #0088cc;
-  font-weight: 500;
+  font-size: 1.1rem;
+  margin: 1rem 0;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.7), 0 0 20px rgba(0, 170, 255, 0.3);
+  font-weight: 400;
+  letter-spacing: 0.25em;
 }
 
 .message-line.scanline {
@@ -67,34 +113,36 @@
   left: -100%;
   width: 100%;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #00ffff, transparent);
-  box-shadow: 0 0 10px #00ffff;
-  animation: scan 2.5s linear infinite;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.6), transparent);
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+  animation: scan 3s linear infinite;
 }
 
 .message-line.pulse {
-  animation: pulse 2.5s ease-in-out infinite;
+  animation: pulse 3s ease-in-out infinite;
+  font-size: 0.95rem;
+  color: rgba(0, 255, 255, 0.6);
 }
 
 /* Enter prompt */
 .enter-prompt {
-  font-size: 0.95rem;
-  opacity: 0.8;
-  animation: blink 1.8s ease-in-out infinite;
+  font-size: 0.85rem;
+  opacity: 0.7;
+  animation: blink 2s ease-in-out infinite;
   letter-spacing: 0.2em;
 }
 
 .bracket {
-  color: #ff0033;
+  color: #dc143c;
   font-weight: bold;
-  text-shadow: 0 0 5px #ff0033;
+  text-shadow: 0 0 4px rgba(220, 20, 60, 0.6);
 }
 
-.text {
+.prompt-text {
   margin: 0 0.5rem;
 }
 
-/* Scanline overlay for screen */
+/* Scanline overlay */
 .scanline-overlay {
   position: fixed;
   top: 0;
@@ -102,18 +150,16 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0) 0px,
-    rgba(0, 0, 0, 0) 2px,
-    rgba(0, 255, 255, 0.02) 2px,
-    rgba(0, 255, 255, 0.02) 4px
-  );
+  background: repeating-linear-gradient(to bottom,
+      rgba(0, 0, 0, 0) 0px,
+      rgba(0, 0, 0, 0) 2px,
+      rgba(0, 255, 255, 0.015) 2px,
+      rgba(0, 255, 255, 0.015) 4px);
   z-index: 99;
-  animation: scanlineScroll 8s linear infinite;
+  animation: scanlineScroll 10s linear infinite;
 }
 
-/* CRT Noise Effect */
+/* CRT Noise */
 .crt-noise {
   position: fixed;
   top: 0;
@@ -121,62 +167,135 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
-  opacity: 0.03;
+  opacity: 0.02;
   z-index: 98;
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="noise"><feTurbulence baseFrequency="0.9" numOctaves="4"/></filter><rect width="100%" height="100%" filter="url(%23noise)"/></svg>');
-  animation: noiseFlicker 0.2s infinite;
+  animation: noiseFlicker 0.15s infinite;
 }
 
 /* Animations */
 @keyframes flicker {
-  0%, 100% { opacity: 0.9; }
-  5%, 15%, 25%, 35%, 45% { opacity: 0.2; }
-  10%, 20%, 30%, 40% { opacity: 1; }
-  50% { opacity: 0.6; }
+
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+
+  8%,
+  18% {
+    opacity: 0.15;
+  }
+
+  12%,
+  22% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+
+  70% {
+    opacity: 0.9;
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.02); }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.5;
+    transform: scale(1.01);
+  }
 }
 
 @keyframes blink {
-  0%, 50%, 100% { opacity: 0.85; }
-  25%, 75% { opacity: 0.3; }
+
+  0%,
+  50%,
+  100% {
+    opacity: 0.8;
+  }
+
+  25%,
+  75% {
+    opacity: 0.25;
+  }
 }
 
 @keyframes scan {
-  0% { left: -100%; }
-  100% { left: 200%; }
+  0% {
+    left: -100%;
+  }
+
+  100% {
+    left: 200%;
+  }
 }
 
 @keyframes glitchShake {
-  0%, 100% { transform: translate(0); }
-  10% { transform: translate(-5px, 2px) skewX(2deg); }
-  20% { transform: translate(5px, -2px) skewX(-2deg); }
-  30% { transform: translate(-3px, 3px); }
-  40% { transform: translate(3px, -3px); }
-  50% { transform: translate(-2px, 1px); }
-  60% { transform: translate(2px, -1px); }
-  70% { transform: translate(-1px, 2px); }
-  80% { transform: translate(1px, -2px); }
-  90% { transform: translate(-1px, 1px); }
+
+  0%,
+  100% {
+    transform: translate(0);
+  }
+
+  10% {
+    transform: translate(-4px, 1px) skewX(1.5deg);
+  }
+
+  20% {
+    transform: translate(4px, -1px) skewX(-1.5deg);
+  }
+
+  30% {
+    transform: translate(-2px, 2px);
+  }
+
+  50% {
+    transform: translate(1px, -1px);
+  }
 }
 
 @keyframes chromaticAberration {
-  0%, 100% { filter: none; }
-  25% { filter: drop-shadow(2px 0 0 #ff0000) drop-shadow(-2px 0 0 #00ffff); }
-  50% { filter: drop-shadow(-2px 0 0 #ff0000) drop-shadow(2px 0 0 #00ffff); }
-  75% { filter: drop-shadow(1px 0 0 #ff0000) drop-shadow(-1px 0 0 #00ffff); }
+
+  0%,
+  100% {
+    filter: none;
+  }
+
+  25% {
+    filter: drop-shadow(2px 0 0 rgba(255, 0, 0, 0.4)) drop-shadow(-2px 0 0 rgba(0, 255, 255, 0.4));
+  }
+
+  50% {
+    filter: drop-shadow(-1px 0 0 rgba(255, 0, 0, 0.3)) drop-shadow(1px 0 0 rgba(0, 255, 255, 0.3));
+  }
 }
 
 @keyframes scanlineScroll {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(4px); }
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(4px);
+  }
 }
 
 @keyframes noiseFlicker {
-  0%, 100% { opacity: 0.03; }
-  50% { opacity: 0.05; }
-}
 
+  0%,
+  100% {
+    opacity: 0.02;
+  }
+
+  50% {
+    opacity: 0.04;
+  }
+}

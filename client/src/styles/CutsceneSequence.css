@@ -1,0 +1,243 @@
+/* CutsceneSequence.css — Deep space signal transmission */
+
+.cutscene-sequence {
+    width: 100vw;
+    height: 100vh;
+    background: #020408;
+    position: relative;
+    overflow: hidden;
+    color: #a0c0e0;
+    font-family: var(--font-mono, 'Courier New', monospace);
+}
+
+.cutscene-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+/* Flash Effects */
+.signal-flash {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(220, 20, 60, 0.2);
+    z-index: 10;
+    pointer-events: none;
+    animation: flashRed 4s ease-out;
+}
+
+.final-distortion {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 100;
+    pointer-events: none;
+    transition: opacity 2s ease-in;
+    mix-blend-mode: overlay;
+}
+
+@keyframes flashRed {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/* Narrative Overlay */
+.cutscene-narrative {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    text-align: center;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+}
+
+.narrative-line {
+    opacity: 0;
+    animation: fadeUp 1s ease-out forwards;
+}
+
+.narrative-line.system {
+    color: #80a0c0;
+}
+
+.narrative-line.success {
+    color: #80ffe0;
+}
+
+.narrative-line.warning {
+    color: #ffcc00;
+    text-shadow: 0 0 5px rgba(255, 200, 0, 0.4);
+}
+
+.narrative-line.error {
+    color: #ff3333;
+    text-shadow: 0 0 8px rgba(255, 50, 50, 0.6);
+    font-weight: bold;
+}
+
+.narrative-line.data {
+    color: #00ffff;
+    font-family: var(--font-display, 'Orbitron', monospace);
+}
+
+.narrative-line.final {
+    font-size: 2rem;
+    font-weight: 900;
+    color: white;
+    letter-spacing: 12px;
+    text-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+    margin-top: 40px;
+    animation: finalGlitch 3s infinite;
+}
+
+@keyframes finalGlitch {
+    0% {
+        transform: translate(0);
+        opacity: 1;
+    }
+
+    2% {
+        transform: translate(-2px, 2px);
+        opacity: 0.8;
+    }
+
+    4% {
+        transform: translate(2px, -2px);
+        opacity: 1;
+    }
+
+    6% {
+        transform: translate(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Signal Indicator */
+.signal-indicator {
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    z-index: 5;
+}
+
+.signal-label {
+    font-size: 0.7rem;
+    color: rgba(100, 200, 255, 0.5);
+    letter-spacing: 3px;
+}
+
+.signal-bars {
+    display: flex;
+    gap: 4px;
+    height: 40px;
+    align-items: flex-end;
+}
+
+.signal-bar {
+    width: 6px;
+    height: 20%;
+    background: rgba(0, 255, 255, 0.2);
+    transition: all 0.3s ease-out;
+}
+
+.signal-bar.active {
+    height: 100%;
+    box-shadow: 0 0 10px currentColor;
+}
+
+/* Status Footer */
+.cutscene-status {
+    position: absolute;
+    bottom: 40px;
+    width: 100%;
+    text-align: center;
+    font-size: 0.8rem;
+    color: rgba(100, 200, 255, 0.4);
+    letter-spacing: 4px;
+    animation: blink 2s infinite;
+}
+
+/* Brackets */
+.cs-bracket {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    z-index: 10;
+}
+
+.cs-bracket.top-left {
+    top: 30px;
+    left: 30px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.cs-bracket.top-right {
+    top: 30px;
+    right: 30px;
+    border-left: none;
+    border-bottom: none;
+}
+
+.cs-bracket.bottom-left {
+    bottom: 30px;
+    left: 30px;
+    border-right: none;
+    border-top: none;
+}
+
+.cs-bracket.bottom-right {
+    bottom: 30px;
+    right: 30px;
+    border-left: none;
+    border-top: none;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0.3;
+    }
+}

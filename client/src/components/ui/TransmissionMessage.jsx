@@ -1,55 +1,63 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import AlienGlyphs from './AlienGlyphs';
 import '../../styles/TransmissionMessage.css';
 
 /**
- * TransmissionMessage - Ominous transmission UI overlay with alien glyphs and system directive
+ * TransmissionMessage - Ominous lore-driven transmission overlay
+ * Features: alien glyphs, cycling classified directives, glitch interference
  */
 function TransmissionMessage({ onEnter }) {
     const [glitchActive, setGlitchActive] = useState(false);
     const [currentMessage, setCurrentMessage] = useState(0);
+    const [visible, setVisible] = useState(false);
 
-    // Cycle through different transmission messages
     const messages = [
-        { primary: 'TRANSMISSION ACKNOWLEDGED', secondary: 'AUTHORIZATION REQUIRED' },
-        { primary: 'PROJECT AEGIS AWAITS', secondary: 'CLEARANCE PENDING' },
-        { primary: 'SIGNAL INTERCEPTED', secondary: 'DECRYPTING PROTOCOL' }
+        { primary: 'TRANSMISSION ACKNOWLEDGED', secondary: 'AUTHORIZATION REQUIRED.' },
+        { primary: 'PROJECT AEGIS AWAITS', secondary: 'CLEARANCE PENDING.' },
+        { primary: 'SIGNAL ORIGIN: UNKNOWN', secondary: 'DECRYPTING PROTOCOL...' },
+        { primary: 'ANOMALY DETECTED', secondary: 'CONTAINMENT PROTOCOL ACTIVE.' },
     ];
 
     useEffect(() => {
+        // Delay visibility
+        const showTimer = setTimeout(() => setVisible(true), 4800);
+
         const handleKeyPress = (e) => {
             if (e.key === 'Enter') {
                 onEnter();
             }
         };
 
-        // Random glitches
+        // Randomized glitches
         const glitchInterval = setInterval(() => {
             setGlitchActive(true);
-            setTimeout(() => setGlitchActive(false), 150);
-        }, 3000 + Math.random() * 2000);
+            setTimeout(() => setGlitchActive(false), 80 + Math.random() * 100);
+        }, 2500 + Math.random() * 3000);
 
-        // Cycle messages slowly
+        // Cycle messages
         const messageInterval = setInterval(() => {
             setCurrentMessage((prev) => (prev + 1) % messages.length);
-        }, 8000);
+        }, 6000);
 
         window.addEventListener('keydown', handleKeyPress);
 
         return () => {
+            clearTimeout(showTimer);
             window.removeEventListener('keydown', handleKeyPress);
             clearInterval(glitchInterval);
             clearInterval(messageInterval);
         };
     }, [onEnter]);
 
+    if (!visible) return null;
+
     return (
         <div className="transmission-overlay">
             <div className={`transmission-container ${glitchActive ? 'glitch' : ''}`}>
                 {/* Alien geometric glyphs */}
-                <AlienGlyphs count={10} size={28} className="glyph-row" />
+                <AlienGlyphs count={12} size={26} className="glyph-row" />
 
-                {/* System message */}
+                {/* System directive */}
                 <div className="system-message">
                     <div className="message-line scanline">
                         {messages[currentMessage].primary}
@@ -62,19 +70,18 @@ function TransmissionMessage({ onEnter }) {
                 {/* Enter prompt */}
                 <div className="enter-prompt">
                     <span className="bracket">[</span>
-                    <span className="text">PRESS ENTER TO PROCEED</span>
+                    <span className="prompt-text">PRESS ENTER TO PROCEED</span>
                     <span className="bracket">]</span>
                 </div>
             </div>
 
-            {/* Scanline interference effect */}
-            <div className="scanline-overlay"></div>
+            {/* Scanline interference */}
+            <div className="scanline-overlay" />
 
             {/* CRT noise */}
-            <div className="crt-noise"></div>
+            <div className="crt-noise" />
         </div>
     );
 }
 
 export default TransmissionMessage;
-
