@@ -21,23 +21,26 @@
 }
 
 .transmission-container.glitch {
-  animation: glitchShake 0.3s ease-in-out;
+  animation: glitchShake 0.3s ease-in-out, chromaticAberration 0.15s;
 }
 
-/* Alien glyphs */
-.alien-glyphs {
+/* Alien glyphs container */
+.alien-glyphs,
+.glyph-row {
   display: flex;
   justify-content: center;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.8rem;
   margin-bottom: 3rem;
-  font-size: 1.5rem;
 }
 
 .glyph {
   display: inline-block;
-  animation: flicker 2s infinite;
-  color: #ff0033;
-  text-shadow: 0 0 10px #ff0033, 0 0 20px #ff0033;
+  animation: flicker 2.5s infinite;
+  color: #ff0055;
+  stroke: currentColor;
+  filter: drop-shadow(0 0 8px #ff0055) drop-shadow(0 0 16px #ff0033);
+  opacity: 0.9;
 }
 
 /* System message */
@@ -46,9 +49,10 @@
 }
 
 .message-line {
-  font-size: 1.2rem;
-  margin: 1rem 0;
-  text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+  font-size: 1.3rem;
+  margin: 1.2rem 0;
+  text-shadow: 0 0 10px #00ffff, 0 0 20px #00aaff, 0 0 30px #0088cc;
+  font-weight: 500;
 }
 
 .message-line.scanline {
@@ -63,23 +67,31 @@
   left: -100%;
   width: 100%;
   height: 2px;
-  background: #00ffff;
-  animation: scan 2s linear infinite;
+  background: linear-gradient(90deg, transparent, #00ffff, transparent);
+  box-shadow: 0 0 10px #00ffff;
+  animation: scan 2.5s linear infinite;
 }
 
 .message-line.pulse {
-  animation: pulse 2s ease-in-out infinite;
+  animation: pulse 2.5s ease-in-out infinite;
 }
 
 /* Enter prompt */
 .enter-prompt {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   opacity: 0.8;
-  animation: blink 1.5s ease-in-out infinite;
+  animation: blink 1.8s ease-in-out infinite;
+  letter-spacing: 0.2em;
 }
 
 .bracket {
   color: #ff0033;
+  font-weight: bold;
+  text-shadow: 0 0 5px #ff0033;
+}
+
+.text {
+  margin: 0 0.5rem;
 }
 
 /* Scanline overlay for screen */
@@ -90,28 +102,46 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
-  background: linear-gradient(
+  background: repeating-linear-gradient(
     to bottom,
-    rgba(255, 255, 255, 0) 50%,
-    rgba(0, 255, 255, 0.03) 50%
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 255, 255, 0.02) 2px,
+    rgba(0, 255, 255, 0.02) 4px
   );
-  background-size: 100% 4px;
   z-index: 99;
+  animation: scanlineScroll 8s linear infinite;
+}
+
+/* CRT Noise Effect */
+.crt-noise {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.03;
+  z-index: 98;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="noise"><feTurbulence baseFrequency="0.9" numOctaves="4"/></filter><rect width="100%" height="100%" filter="url(%23noise)"/></svg>');
+  animation: noiseFlicker 0.2s infinite;
 }
 
 /* Animations */
 @keyframes flicker {
-  0%, 100% { opacity: 1; }
-  10%, 30%, 50%, 70%, 90% { opacity: 0.3; }
+  0%, 100% { opacity: 0.9; }
+  5%, 15%, 25%, 35%, 45% { opacity: 0.2; }
+  10%, 20%, 30%, 40% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.02); }
 }
 
 @keyframes blink {
-  0%, 50%, 100% { opacity: 0.8; }
+  0%, 50%, 100% { opacity: 0.85; }
   25%, 75% { opacity: 0.3; }
 }
 
@@ -122,8 +152,8 @@
 
 @keyframes glitchShake {
   0%, 100% { transform: translate(0); }
-  10% { transform: translate(-5px, 2px); }
-  20% { transform: translate(5px, -2px); }
+  10% { transform: translate(-5px, 2px) skewX(2deg); }
+  20% { transform: translate(5px, -2px) skewX(-2deg); }
   30% { transform: translate(-3px, 3px); }
   40% { transform: translate(3px, -3px); }
   50% { transform: translate(-2px, 1px); }
@@ -132,3 +162,21 @@
   80% { transform: translate(1px, -2px); }
   90% { transform: translate(-1px, 1px); }
 }
+
+@keyframes chromaticAberration {
+  0%, 100% { filter: none; }
+  25% { filter: drop-shadow(2px 0 0 #ff0000) drop-shadow(-2px 0 0 #00ffff); }
+  50% { filter: drop-shadow(-2px 0 0 #ff0000) drop-shadow(2px 0 0 #00ffff); }
+  75% { filter: drop-shadow(1px 0 0 #ff0000) drop-shadow(-1px 0 0 #00ffff); }
+}
+
+@keyframes scanlineScroll {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(4px); }
+}
+
+@keyframes noiseFlicker {
+  0%, 100% { opacity: 0.03; }
+  50% { opacity: 0.05; }
+}
+
