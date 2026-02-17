@@ -5,6 +5,7 @@ import './styles/index.css';
 // Lazy load scenes
 const SpaceScene = lazy(() => import('./scenes/SpaceScene'));
 const LoginTerminal = lazy(() => import('./components/ui/LoginTerminal'));
+const TransitionSequence = lazy(() => import('./components/ui/TransitionSequence'));
 
 function App() {
   const currentScene = useGameStore((state) => state.currentScene);

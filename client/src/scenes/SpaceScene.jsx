@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber';
 import { PerspectiveCamera } from '@react-three/drei';
 import { Suspense } from 'react';
-import { EffectComposer, Bloom, DepthOfField, Vignette } from '@react-three/postprocessing';
+import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing';
 import { BlendFunction } from 'postprocessing';
 import Earth from '../components/3d/Earth';
 import IncursionTitle from '../components/3d/IncursionTitle';
@@ -30,13 +30,12 @@ function CameraRig() {
 }
 
 /**
- * SpaceScene - Hyper-realistic deep space environment with cinematic post-processing
+ * SpaceScene - Deep space environment with Earth and cinematic effects
  */
 function SpaceScene() {
     const setScene = useGameStore((state) => state.setScene);
 
     const handleEnterPress = () => {
-        // First go to TRANSITION, then auto-advance to LOGIN
         setScene('TRANSITION');
         setTimeout(() => {
             setScene('LOGIN');
@@ -50,55 +49,49 @@ function SpaceScene() {
                     antialias: true,
                     alpha: false,
                     powerPreference: 'high-performance',
-                    toneMapping: 2, // ACESFilmicToneMapping
+                    toneMapping: 2,
                     toneMappingExposure: 1.2
                 }}
                 dpr={[1, 2]}
             >
+                {/* Camera */}
+                <CameraRig />
+
+                {/* Lighting */}
+                <ambientLight intensity={0.15} color="#1a2a4a" />
+
+                {/* Background */}
+                <color attach="background" args={['#000508']} />
+
+                {/* Earth - always renders (no external deps) */}
+                <Earth />
+
+                {/* Title - wrapped in Suspense since it loads external font */}
                 <Suspense fallback={null}>
-                    {/* Camera */}
-                    <CameraRig />
-
-                    {/* Lighting */}
-                    <ambientLight intensity={0.12} color="#0a1428" />
-
-                    {/* Background */}
-                    <color attach="background" args={['#000508']} />
-                    <fog attach="fog" args={['#000508', 15, 60]} />
-
-                    {/* 3D Elements */}
-                    <Earth />
                     <IncursionTitle />
-                    <SpaceParticles count={2000} />
-
-                    {/* Post-Processing Effects */}
-                    <EffectComposer>
-                        {/* Bloom for glow effects */}
-                        <Bloom
-                            intensity={0.8}
-                            luminanceThreshold={0.2}
-                            luminanceSmoothing={0.9}
-                            height={300}
-                            mipmapBlur={true}
-                        />
-
-                        {/* Depth of Field for cinematic focus */}
-                        <DepthOfField
-                            focusDistance={0.02}
-                            focalLength={0.05}
-                            bokehScale={3}
-                            height={480}
-                        />
-
-                        {/* Vignette for dramatic framing */}
-                        <Vignette
-                            offset={0.3}
-                            darkness={0.6}
-                            eskil={false}
-                            blendFunction={BlendFunction.NORMAL}
-                        />
-                    </EffectComposer>
                 </Suspense>
+
+                {/* Space particles */}
+                <Suspense fallback={null}>
+                    <SpaceParticles count={2000} />
+                </Suspense>
+
+                {/* Post-Processing - Bloom + Vignette only (no DepthOfField) */}
+                <EffectComposer>
+                    <Bloom
+                        intensity={0.8}
+                        luminanceThreshold={0.2}
+                        luminanceSmoothing={0.9}
+                        height={300}
+                        mipmapBlur={true}
+                    />
+                    <Vignette
+                        offset={0.3}
+                        darkness={0.5}
+                        eskil={false}
+                        blendFunction={BlendFunction.NORMAL}
+                    />
+                </EffectComposer>
             </Canvas>
 
             {/* UI Overlay */}
@@ -108,4 +101,3 @@ function SpaceScene() {
 }
 
 export default SpaceScene;
-
