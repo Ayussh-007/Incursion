@@ -1,0 +1,134 @@
+.transmission-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.transmission-container {
+  text-align: center;
+  color: #00ffff;
+  font-family: 'Courier New', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  position: relative;
+}
+
+.transmission-container.glitch {
+  animation: glitchShake 0.3s ease-in-out;
+}
+
+/* Alien glyphs */
+.alien-glyphs {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 3rem;
+  font-size: 1.5rem;
+}
+
+.glyph {
+  display: inline-block;
+  animation: flicker 2s infinite;
+  color: #ff0033;
+  text-shadow: 0 0 10px #ff0033, 0 0 20px #ff0033;
+}
+
+/* System message */
+.system-message {
+  margin-bottom: 4rem;
+}
+
+.message-line {
+  font-size: 1.2rem;
+  margin: 1rem 0;
+  text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+}
+
+.message-line.scanline {
+  position: relative;
+  overflow: hidden;
+}
+
+.message-line.scanline::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: #00ffff;
+  animation: scan 2s linear infinite;
+}
+
+.message-line.pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Enter prompt */
+.enter-prompt {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  animation: blink 1.5s ease-in-out infinite;
+}
+
+.bracket {
+  color: #ff0033;
+}
+
+/* Scanline overlay for screen */
+.scanline-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 50%,
+    rgba(0, 255, 255, 0.03) 50%
+  );
+  background-size: 100% 4px;
+  z-index: 99;
+}
+
+/* Animations */
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  10%, 30%, 50%, 70%, 90% { opacity: 0.3; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes blink {
+  0%, 50%, 100% { opacity: 0.8; }
+  25%, 75% { opacity: 0.3; }
+}
+
+@keyframes scan {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+@keyframes glitchShake {
+  0%, 100% { transform: translate(0); }
+  10% { transform: translate(-5px, 2px); }
+  20% { transform: translate(5px, -2px); }
+  30% { transform: translate(-3px, 3px); }
+  40% { transform: translate(3px, -3px); }
+  50% { transform: translate(-2px, 1px); }
+  60% { transform: translate(2px, -1px); }
+  70% { transform: translate(-1px, 2px); }
+  80% { transform: translate(1px, -2px); }
+  90% { transform: translate(-1px, 1px); }
+}

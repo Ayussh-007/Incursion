@@ -1,0 +1,27 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #000000;
+    color: #ffffff;
+    overflow: hidden;
+    user-select: none;
+}
+
+#root {
+    width: 100vw;
+    height: 100vh;
+}
+
+/* Prevent text selection and drag on 3D canvas */
+canvas {
+    display: block;
+    outline: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
