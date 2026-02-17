@@ -110,12 +110,9 @@ function LoginTerminal() {
                     await login(username, password);
                     showSuccess();
                 } catch (error) {
-                    // Demo mode fallback
-                    if (username && password.length >= 4) {
-                        showSuccess();
-                    } else {
-                        showError();
-                    }
+                    // Strict security: No demo fallback
+                    console.error('Login failed:', error);
+                    showError();
                 }
             }, 1800);
         }

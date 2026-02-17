@@ -24,14 +24,15 @@ const registerValidation = [
 ];
 
 const loginValidation = [
-    body('email')
-        .trim()
-        .isEmail()
-        .normalizeEmail()
-        .withMessage('Valid email required'),
     body('password')
         .notEmpty()
-        .withMessage('Password required')
+        .withMessage('Password required'),
+    body().custom((value, { req }) => {
+        if (!req.body.email && !req.body.username) {
+            throw new Error('Username or Email is required');
+        }
+        return true;
+    })
 ];
 
 // Routes

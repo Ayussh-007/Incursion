@@ -52,7 +52,7 @@ const useGameStore = create((set, get) => ({
     // Authentication
     login: async (username, password) => {
         try {
-            const response = await api.post('/api/auth/login', { username, password });
+            const response = await api.post('/auth/login', { username, password });
             set({
                 isAuthenticated: true,
                 user: response.data.user
@@ -65,7 +65,7 @@ const useGameStore = create((set, get) => ({
 
     logout: async () => {
         try {
-            await api.post('/api/auth/logout');
+            await api.post('/auth/logout');
             set({
                 isAuthenticated: false,
                 user: null,
