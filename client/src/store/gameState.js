@@ -1,32 +1,51 @@
 import { create } from 'zustand';
+import api from '../services/api';
 
 const useGameStore = create((set) => ({
     // Sequence state
-    currentScene: 'INTRO', // INTRO, TRANSITION, LOGIN, CUTSCENE, GAME
-    isTransitioning: false,
+    currentScene: 'INTRO', // 'INTRO' | 'TRANSITION' | 'LOGIN' | 'CUTSCENE' | 'GAME'
 
     // User state
-    user: null,
     isAuthenticated: false,
+    user: null,
     gameProgress: null,
 
     // Audio state
-    isMuted: false,
-    volume: 0.7,
+    audioMuted: false,
+    audioVolume: 0.7,
 
     // Actions
     setScene: (scene) => set({ currentScene: scene }),
-    setTransitioning: (isTransitioning) => set({ isTransitioning }),
-    setUser: (user) => set({ user, isAuthenticated: !!user }),
-    setGameProgress: (gameProgress) => set({ gameProgress }),
-    toggleMute: () => set((state) => ({ isMuted: !state.isMuted })),
-    setVolume: (volume) => set({ volume }),
-    logout: () => set({
-        user: null,
-        isAuthenticated: false,
-        gameProgress: null,
-        currentScene: 'INTRO'
-    })
+    setAudioMuted: (muted) => set({ audioMuted: muted }),
+    setAudioVolume: (volume) => set({ audioVolume: volume }),
+
+    // Authentication
+    login: async (username, password) => {
+        try {
+            const response = await api.post('/api/auth/login', { username, password });
+            set({
+                isAuthenticated: true,
+                user: response.data.user
+            });
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    logout: async () => {
+        try {
+            await api.post('/api/auth/logout');
+            set({
+                isAuthenticated: false,
+                user: null,
+                gameProgress: null,
+                currentScene: 'INTRO'
+            });
+        } catch (error) {
+            console.error('Logout failed:', error);
+        }
+    }
 }));
 
 export default useGameStore;

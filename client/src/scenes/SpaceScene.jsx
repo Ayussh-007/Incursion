@@ -34,7 +34,11 @@ function SpaceScene() {
     const setScene = useGameStore((state) => state.setScene);
 
     const handleEnterPress = () => {
+        // First go to TRANSITION, then auto-advance to LOGIN
         setScene('TRANSITION');
+        setTimeout(() => {
+            setScene('LOGIN');
+        }, 3000);
     };
 
     return (
