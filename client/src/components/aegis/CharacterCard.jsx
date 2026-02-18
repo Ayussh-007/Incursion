@@ -38,8 +38,17 @@ function CooldownRing({ progress, color, size = 56 }) {
     );
 }
 
-// Avatar placeholder (CSS-based silhouette)
+// Avatar image map — matches card order (index 0–4)
+const AVATAR_IMAGES = [
+    '/avatars/char 1.jpeg',  // 0 — Strategist
+    '/avatars/char 2.jpeg',  // 1 — Chrono Architect
+    '/avatars/char 3.jpeg',  // 2 — Archivist
+    '/avatars/char 4.jpeg',  // 3 — Bio-Defender
+    '/avatars/char 5.jpeg',  // 4 — Engineer
+];
+
 function AvatarPlaceholder({ character }) {
+    const imgSrc = AVATAR_IMAGES[character.index];
     return (
         <div
             className="avatar-placeholder"
@@ -48,34 +57,13 @@ function AvatarPlaceholder({ character }) {
                 boxShadow: `0 0 30px ${character.avatarAccent}33`,
             }}
         >
-            {/* Silhouette shape */}
-            <div className="avatar-silhouette" style={{ color: character.avatarAccent }}>
-                <svg viewBox="0 0 80 100" width="80" height="100">
-                    {/* Head */}
-                    <ellipse cx="40" cy="22" rx="14" ry="16" fill={character.avatarAccent} fillOpacity="0.7" />
-                    {/* Visor */}
-                    <rect x="28" y="18" width="24" height="8" rx="2" fill={character.avatarAccent} fillOpacity="0.4" />
-                    <line x1="28" y1="22" x2="52" y2="22" stroke={character.avatarAccent} strokeWidth="1" strokeOpacity="0.8" />
-                    {/* Body */}
-                    <path d="M22,38 Q40,34 58,38 L62,80 Q40,85 18,80 Z"
-                        fill={character.avatarAccent} fillOpacity="0.15"
-                        stroke={character.avatarAccent} strokeWidth="1" strokeOpacity="0.5" />
-                    {/* Shoulder pads */}
-                    <rect x="10" y="38" width="14" height="10" rx="2"
-                        fill={character.avatarAccent} fillOpacity="0.4" />
-                    <rect x="56" y="38" width="14" height="10" rx="2"
-                        fill={character.avatarAccent} fillOpacity="0.4" />
-                    {/* Chest detail */}
-                    <rect x="32" y="45" width="16" height="12" rx="1"
-                        fill={character.avatarAccent} fillOpacity="0.3"
-                        stroke={character.avatarAccent} strokeWidth="0.5" strokeOpacity="0.8" />
-                    {/* Circuit lines */}
-                    <line x1="22" y1="50" x2="32" y2="50" stroke={character.avatarAccent} strokeWidth="0.8" strokeOpacity="0.6" />
-                    <line x1="48" y1="50" x2="58" y2="50" stroke={character.avatarAccent} strokeWidth="0.8" strokeOpacity="0.6" />
-                    <line x1="40" y1="57" x2="40" y2="70" stroke={character.avatarAccent} strokeWidth="0.8" strokeOpacity="0.4" />
-                </svg>
-            </div>
-            {/* Ambient glow */}
+            <img
+                src={imgSrc}
+                alt={character.title}
+                className="avatar-image"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            />
+            {/* Ambient glow overlay */}
             <div className="avatar-glow" style={{ background: `radial-gradient(circle, ${character.avatarAccent}22 0%, transparent 70%)` }} />
             {/* Scan line effect */}
             <div className="avatar-scan" />
