@@ -31,7 +31,15 @@ function CutsceneSequence() {
     const [wavePhase, setWavePhase] = useState(0); // 0=transmit, 1=waiting, 2=response
     const [signalIntensity, setSignalIntensity] = useState(0);
     const canvasRef = useRef(null);
+    const narrativeRef = useRef(null);
     const phaseRef = useRef(0);
+
+    // Auto-scroll narrative to bottom when new lines appear
+    useEffect(() => {
+        if (narrativeRef.current) {
+            narrativeRef.current.scrollTop = narrativeRef.current.scrollHeight;
+        }
+    }, [visibleLines]);
 
     // Waveform canvas animation
     useEffect(() => {
@@ -184,7 +192,7 @@ function CutsceneSequence() {
             <canvas ref={canvasRef} className="cutscene-canvas" />
 
             {/* Narrative text overlay */}
-            <div className="cutscene-narrative">
+            <div className="cutscene-narrative" ref={narrativeRef}>
                 {visibleLines.map((line, i) => (
                     <div key={i} className={`narrative-line ${line.type}`}>
                         {line.text}
