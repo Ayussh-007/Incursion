@@ -1,6 +1,5 @@
 /**
- * AEGIS Operative Definitions
- * Each character maps to a specific zone on the tactical map
+ * AEGIS Operative Definitions — Extended with narrative, abilities, and unlock data
  */
 
 export const CHARACTERS = [
@@ -18,13 +17,35 @@ export const CHARACTERS = [
             'Temporarily reveals hidden pathways, puzzle hints, and enemy logic patterns across the level.',
         cooldown: 45,
         themeKey: 'strategist',
-        // Zone position on tactical map (percentage of map dimensions)
         zonePosition: { x: 50, y: 15 },
-        // Avatar gradient fallback (used when image unavailable)
         avatarGradient: 'linear-gradient(135deg, #0a1628 0%, #0d2545 50%, #1a3a6b 100%)',
         avatarAccent: '#1e90ff',
         abilityType: 'scan_wave',
         abilityIcon: '⬡',
+        unlockLevel: 0, // Always unlocked
+        introTagline: 'COMMAND THE BATTLEFIELD. CONTROL THE OUTCOME.',
+        narrative:
+            'PHANTOM-1 operates from the Bridge — the nerve center of every operation. A master of battlefield intelligence, the Strategist processes threat vectors faster than any known AI system, mapping enemy logic in real time and exposing weaknesses invisible to the untrained eye. Where others react, PHANTOM-1 anticipates. Where others guess, PHANTOM-1 knows. Deploy this operative when the mission demands clarity in chaos.',
+        abilities: [
+            {
+                name: 'Neural Override',
+                icon: '⬡',
+                description: 'Activates a deep-scan pulse across the level, temporarily illuminating hidden pathways, concealed puzzle mechanisms, and the behavioral logic of hostile entities.',
+                stat: 'Duration: 8s | Cooldown: 45s',
+            },
+            {
+                name: 'Tactical Foresight',
+                icon: '◈',
+                description: 'Passive ability. The Strategist\'s HUD continuously highlights interactive objects and environmental hazards within a 15-meter radius, reducing reaction time by 40%.',
+                stat: 'Passive | Always Active',
+            },
+            {
+                name: 'Adaptive Planning',
+                icon: '⬟',
+                description: 'When a puzzle or lock is failed, the Strategist auto-analyzes the failure pattern and reduces the next attempt\'s complexity by reconfiguring the approach vector.',
+                stat: 'Trigger: On Failure | Stacks: 3',
+            },
+        ],
     },
     {
         id: 'chrono',
@@ -42,9 +63,33 @@ export const CHARACTERS = [
         themeKey: 'chrono',
         zonePosition: { x: 25, y: 40 },
         avatarGradient: 'linear-gradient(135deg, #071a0e 0%, #0d2e18 50%, #0f4020 100%)',
-        avatarAccent: '#00ff88',
+        avatarAccent: '#00e676',
         abilityType: 'time_ripple',
         abilityIcon: '◎',
+        unlockLevel: 1,
+        introTagline: 'TIME IS NOT A CONSTRAINT. IT IS A WEAPON.',
+        narrative:
+            'EPOCH-2 was engineered within the Chronovizer Room — a chamber where temporal mechanics are not theory, but operational reality. The Chrono Architect bends the flow of time itself, decelerating environmental systems and creating windows of opportunity that exist for no other operative. In a universe where milliseconds determine survival, EPOCH-2 manufactures seconds from nothing.',
+        abilities: [
+            {
+                name: 'Temporal Shift',
+                icon: '◎',
+                description: 'Emits a localized temporal field that slows all environmental hazards, countdown timers, and mechanical systems to 30% of their normal speed for a focused window.',
+                stat: 'Duration: 6s | Cooldown: 60s',
+            },
+            {
+                name: 'Chrono Anchor',
+                icon: '⬡',
+                description: 'Passive ability. Marks the operative\'s position every 20 seconds. If critically damaged, auto-rewinds to the last anchor point with 50% integrity restored.',
+                stat: 'Passive | Rewind Interval: 20s',
+            },
+            {
+                name: 'Phase Echo',
+                icon: '◈',
+                description: 'Creates a temporal ghost of the operative\'s last 3 seconds of movement, allowing simultaneous interaction with two puzzle nodes separated by distance.',
+                stat: 'Duration: 3s | Cooldown: 90s',
+            },
+        ],
     },
     {
         id: 'archivist',
@@ -65,6 +110,30 @@ export const CHARACTERS = [
         avatarAccent: '#ffc107',
         abilityType: 'data_surge',
         abilityIcon: '◈',
+        unlockLevel: 2,
+        introTagline: 'EVERY SYSTEM HAS A KEY. CIPHER-3 IS ALL OF THEM.',
+        narrative:
+            'CIPHER-3 emerged from the Archive Vault — a labyrinth of classified intelligence and encrypted alien transmissions. The Archivist has processed more encrypted data than any human institution in recorded history, developing an intuitive understanding of lock logic, codex structures, and hidden information layers. No system stays sealed. No secret stays buried. CIPHER-3 finds the answer before the question is fully formed.',
+        abilities: [
+            {
+                name: 'Data Extraction',
+                icon: '◈',
+                description: 'Instantly breaks the encryption of one locked terminal, sealed door, or puzzle mechanism. Alternatively, reveals one hidden codex digit fragment embedded in the environment.',
+                stat: 'Instant | Cooldown: 50s',
+            },
+            {
+                name: 'Pattern Recognition',
+                icon: '⬡',
+                description: 'Passive ability. After observing a puzzle for 2 seconds, the Archivist highlights the correct interaction sequence in gold, reducing solve time by up to 70%.',
+                stat: 'Passive | Activation Delay: 2s',
+            },
+            {
+                name: 'Archive Recall',
+                icon: '⬟',
+                description: 'Accesses a stored database of previously encountered puzzle types. If a matching pattern is found, auto-solves the mechanism without player input.',
+                stat: 'Trigger: On Puzzle Entry | Match Rate: 65%',
+            },
+        ],
     },
     {
         id: 'biodefender',
@@ -85,6 +154,30 @@ export const CHARACTERS = [
         avatarAccent: '#00c853',
         abilityType: 'shield_dome',
         abilityIcon: '⬟',
+        unlockLevel: 3,
+        introTagline: 'NOTHING BREACHES THE SHIELD. NOTHING.',
+        narrative:
+            'AEGIS-4 was forged in the Bioshield Chamber — a facility designed to contain the most lethal biological and alien contaminants known to science. The Bio-Defender carries that containment technology as a weapon, projecting adaptive energy barriers that neutralize environmental threats, alien interference fields, and hazardous zone damage. In the most hostile environments aboard the vessel, AEGIS-4 is the difference between mission success and total biological compromise.',
+        abilities: [
+            {
+                name: 'Adaptive Shield',
+                icon: '⬟',
+                description: 'Projects a full-body energy barrier that absorbs all incoming environmental damage and alien interference for a sustained duration. Shield adapts to threat type in real time.',
+                stat: 'Duration: 8s | Cooldown: 70s',
+            },
+            {
+                name: 'Biometric Resilience',
+                icon: '◎',
+                description: 'Passive ability. The Bio-Defender\'s suit continuously monitors and neutralizes low-level toxins and radiation, granting permanent immunity to environmental damage zones below threat level 3.',
+                stat: 'Passive | Immunity Threshold: Level 3',
+            },
+            {
+                name: 'Shield Pulse',
+                icon: '◈',
+                description: 'Releases a concentrated burst of shield energy outward, temporarily disabling alien interference emitters and resetting hazard timers within a 10-meter radius.',
+                stat: 'Radius: 10m | Cooldown: 45s',
+            },
+        ],
     },
     {
         id: 'engineer',
@@ -105,6 +198,30 @@ export const CHARACTERS = [
         avatarAccent: '#ff5722',
         abilityType: 'energy_surge',
         abilityIcon: '⚙',
+        unlockLevel: 4,
+        introTagline: 'EVERY MACHINE BENDS TO THE ENGINEER\'S WILL.',
+        narrative:
+            'FORGE-5 commands the Engineering and Armory sectors — the mechanical backbone of the entire vessel. The Engineer interfaces directly with ship systems at a hardware level, bypassing software locks and overriding mechanical failsafes with bare-hands precision. When the mission requires brute-force mechanical dominance, FORGE-5 doesn\'t just open doors — the Engineer dismantles the concept of locked.',
+        abilities: [
+            {
+                name: 'System Overdrive',
+                icon: '⚙',
+                description: 'Supercharges all mechanical interactions for a burst duration — interaction speed increases by 300%, lock bypass time drops to near-zero, and mechanical puzzle complexity is halved.',
+                stat: 'Duration: 5s | Cooldown: 40s',
+            },
+            {
+                name: 'Mechanical Intuition',
+                icon: '⬡',
+                description: 'Passive ability. The Engineer automatically identifies the weakest structural point of any mechanical lock or barrier, reducing bypass time by 50% on all interactions.',
+                stat: 'Passive | Always Active',
+            },
+            {
+                name: 'Emergency Fabrication',
+                icon: '◈',
+                description: 'Rapidly constructs a temporary mechanical bypass tool from available ship components, allowing one-time access through a sealed mechanical barrier without the correct key.',
+                stat: 'Uses: 2 per level | Cooldown: 120s',
+            },
+        ],
     },
 ];
 

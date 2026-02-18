@@ -3,7 +3,7 @@ import api from '../services/api';
 
 const useGameStore = create((set, get) => ({
     // Scene state
-    currentScene: 'INTRO', // 'INTRO' | 'TRANSITION' | 'LOGIN' | 'CUTSCENE' | 'AEGIS' | 'GAME'
+    currentScene: 'INTRO', // 'INTRO' | 'TRANSITION' | 'LOGIN' | 'CUTSCENE' | 'AEGIS' | 'CHAR_INTRO' | 'GAME'
     transitionProgress: 0,
     sceneReady: false,
 
@@ -28,6 +28,13 @@ const useGameStore = create((set, get) => ({
     aegisPhase: 'MAP_INTRO',       // 'MAP_INTRO' | 'CARDS_RISE' | 'READY'
     _cooldownTimer: null,          // internal ref for cleanup
 
+    // ── Character Unlock & Progression State ─────────────────────────────────
+    unlockedCharacters: [0],       // indices of unlocked characters (Strategist always unlocked)
+    currentLevel: 0,               // levels cleared
+    pendingUnlock: null,           // index of character just unlocked (null = none pending)
+    introCharacterIndex: 0,        // which character's intro page to show
+    hasSeenIntro: false,           // true after first CHAR_INTRO has been seen
+
     // Actions
     setScene: (scene) => set({ currentScene: scene }),
     setTransitionProgress: (progress) => set({ transitionProgress: Math.min(1, Math.max(0, progress)) }),
@@ -40,8 +47,9 @@ const useGameStore = create((set, get) => ({
 
     // AEGIS actions
     setSelectedCharacter: (index) => {
-        const { abilityActive } = get();
+        const { abilityActive, unlockedCharacters } = get();
         if (abilityActive) return; // don't switch mid-ability
+        if (!unlockedCharacters.includes(index)) return; // locked character
         set({ selectedCharacter: index, abilityCooldownProgress: 1.0 });
     },
 
@@ -81,6 +89,49 @@ const useGameStore = create((set, get) => ({
         set({ _cooldownTimer: timer });
     },
 
+    // ── Progression Actions ───────────────────────────────────────────────────
+
+    // Called when a level is cleared — checks for new unlocks
+    completeLevel: () => {
+        const { currentLevel, unlockedCharacters } = get();
+        const nextLevel = currentLevel + 1;
+
+        // Character unlock map: level cleared → character index unlocked
+        const UNLOCK_MAP = { 1: 1, 2: 2, 3: 3, 4: 4 };
+        const newUnlock = UNLOCK_MAP[nextLevel];
+
+        if (newUnlock !== undefined && !unlockedCharacters.includes(newUnlock)) {
+            // New character unlocked — show their intro page
+            set({
+                currentLevel: nextLevel,
+                unlockedCharacters: [...unlockedCharacters, newUnlock],
+                pendingUnlock: newUnlock,
+                introCharacterIndex: newUnlock,
+                currentScene: 'CHAR_INTRO',
+            });
+        } else {
+            // No new unlock — just increment level and go back to AEGIS
+            set({ currentLevel: nextLevel, currentScene: 'AEGIS' });
+        }
+    },
+
+    // Called when the CHAR_INTRO "Deploy" button is pressed
+    completeCharIntro: () => {
+        const { pendingUnlock, hasSeenIntro } = get();
+        if (pendingUnlock !== null) {
+            // Coming from an unlock — return to AEGIS deck with new character available
+            set({
+                pendingUnlock: null,
+                hasSeenIntro: true,
+                selectedCharacter: pendingUnlock,
+                currentScene: 'AEGIS',
+            });
+        } else {
+            // First-time Strategist intro — go to GAME
+            set({ hasSeenIntro: true, currentScene: 'GAME' });
+        }
+    },
+
     // Transition orchestration
     triggerEnterTransition: () => {
         const { setScene, setTitleFractured } = get();
@@ -98,8 +149,14 @@ const useGameStore = create((set, get) => ({
         set({ currentScene: 'AEGIS' });
     },
 
+    // From AEGIS "Deploy" button — show Strategist intro first time, then GAME
     completeAegis: () => {
-        set({ currentScene: 'GAME' });
+        const { hasSeenIntro, selectedCharacter } = get();
+        if (!hasSeenIntro) {
+            set({ currentScene: 'CHAR_INTRO', introCharacterIndex: selectedCharacter });
+        } else {
+            set({ currentScene: 'GAME' });
+        }
     },
 
     // Authentication

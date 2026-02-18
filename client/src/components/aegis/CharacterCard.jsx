@@ -71,25 +71,27 @@ function AvatarPlaceholder({ character }) {
     );
 }
 
-function CharacterCard({ character, isSelected, onSelect }) {
+function CharacterCard({ character, isSelected, isLocked, onSelect }) {
     const abilityCooldownProgress = useGameStore((s) => s.abilityCooldownProgress);
     const selectedCharacter = useGameStore((s) => s.selectedCharacter);
     const cardRef = useRef(null);
 
     const isThisSelected = isSelected;
-    const showCooldown = isThisSelected;
+    const showCooldown = isThisSelected && !isLocked;
     const cooldownProgress = showCooldown ? abilityCooldownProgress : 1.0;
     const isReady = cooldownProgress >= 1.0;
 
     return (
         <motion.div
             ref={cardRef}
-            className={`character-card ${isThisSelected ? 'selected' : ''}`}
-            onClick={() => onSelect(character.index)}
+            className={`character-card ${isThisSelected ? 'selected' : ''} ${isLocked ? 'locked' : ''}`}
+            onClick={() => !isLocked && onSelect(character.index)}
             style={{
                 '--char-color': character.avatarAccent,
                 '--char-color-dim': `${character.avatarAccent}44`,
                 '--char-glow': `${character.avatarAccent}33`,
+                opacity: isLocked ? 0.45 : 1,
+                cursor: isLocked ? 'not-allowed' : 'pointer',
             }}
             initial={{ opacity: 0, y: 60, scale: 0.9 }}
             animate={{
@@ -122,6 +124,14 @@ function CharacterCard({ character, isSelected, onSelect }) {
             {/* Avatar section */}
             <div className="card-avatar-section">
                 <AvatarPlaceholder character={character} />
+
+                {/* Locked overlay */}
+                {isLocked && (
+                    <div className="avatar-locked-overlay">
+                        <div className="lock-icon" style={{ color: character.avatarAccent }}>🔒</div>
+                        <div className="lock-label">LOCKED</div>
+                    </div>
+                )}
 
                 {/* Cooldown ring overlay on avatar */}
                 {showCooldown && (

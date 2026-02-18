@@ -1,0 +1,1395 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Level1Scene.css — Breach Protocol: Hyper-Realistic Corridor + Keypad
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Base Scene ──────────────────────────────────────────────────────────── */
+.level1-scene {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    overflow: hidden;
+    font-family: 'Orbitron', 'JetBrains Mono', monospace;
+}
+
+.level1-gameplay {
+    position: absolute;
+    inset: 0;
+}
+
+/* ── Keypad Wrapper ──────────────────────────────────────────────────────── */
+.level1-keypad-wrapper {
+    position: absolute;
+    right: 12%;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 30;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ACT INTRO
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.act-intro-scene {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background:
+        radial-gradient(ellipse at 50% 40%, rgba(30, 10, 10, 0.9) 0%, #000 70%),
+        #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Fog layers */
+.act-fog {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.act-fog-1 {
+    background: radial-gradient(ellipse at 30% 60%, rgba(180, 20, 20, 0.04) 0%, transparent 60%);
+    animation: fog-drift-1 8s ease-in-out infinite alternate;
+}
+
+.act-fog-2 {
+    background: radial-gradient(ellipse at 70% 40%, rgba(100, 10, 10, 0.03) 0%, transparent 50%);
+    animation: fog-drift-2 12s ease-in-out infinite alternate;
+}
+
+.act-fog-3 {
+    background: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.6) 100%);
+}
+
+@keyframes fog-drift-1 {
+    0% {
+        transform: translateX(-20px) translateY(10px);
+        opacity: 0.6;
+    }
+
+    100% {
+        transform: translateX(20px) translateY(-10px);
+        opacity: 1;
+    }
+}
+
+@keyframes fog-drift-2 {
+    0% {
+        transform: translateX(15px) translateY(-8px);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: translateX(-15px) translateY(8px);
+        opacity: 0.9;
+    }
+}
+
+/* Corridor lighting strips for act intro */
+.act-light-strip {
+    position: absolute;
+    pointer-events: none;
+}
+
+.act-light-left {
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, transparent 10%, rgba(220, 20, 60, 0.3) 40%, rgba(220, 20, 60, 0.15) 60%, transparent 90%);
+    box-shadow: 0 0 20px rgba(220, 20, 60, 0.2), 0 0 60px rgba(220, 20, 60, 0.08);
+}
+
+.act-light-right {
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, transparent 10%, rgba(220, 20, 60, 0.3) 40%, rgba(220, 20, 60, 0.15) 60%, transparent 90%);
+    box-shadow: 0 0 20px rgba(220, 20, 60, 0.2), 0 0 60px rgba(220, 20, 60, 0.08);
+}
+
+.act-light-floor {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(220, 20, 60, 0.2), transparent);
+}
+
+/* Scanlines */
+.act-scanlines {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.15) 2px,
+            rgba(0, 0, 0, 0.15) 4px);
+    z-index: 5;
+}
+
+/* Text container */
+.act-text-container {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+    transition: filter 0.8s ease;
+}
+
+.act-text-container.dissolving {
+    filter: blur(2px);
+}
+
+/* ACT I label */
+.act-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(11px, 1.4vw, 16px);
+    font-weight: 400;
+    letter-spacing: 0.35em;
+    color: rgba(220, 20, 60, 0.7);
+    text-transform: uppercase;
+}
+
+.act-label-glitch {
+    position: relative;
+    display: inline-block;
+    animation: act-glitch-ripple 0.6s steps(1) 0.2s 3;
+}
+
+.act-label-glitch::before,
+.act-label-glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+}
+
+@keyframes act-glitch-ripple {
+    0% {
+        transform: none;
+        opacity: 1;
+    }
+
+    20% {
+        transform: translateX(-2px);
+        opacity: 0.8;
+    }
+
+    40% {
+        transform: translateX(2px) skewX(2deg);
+        opacity: 0.9;
+    }
+
+    60% {
+        transform: translateX(-1px);
+        opacity: 1;
+    }
+
+    80% {
+        transform: skewX(-1deg);
+        opacity: 0.85;
+    }
+
+    100% {
+        transform: none;
+        opacity: 1;
+    }
+}
+
+/* BREACH PROTOCOL title */
+.act-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(28px, 5vw, 64px);
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    color: #e8eaf0;
+    text-transform: uppercase;
+    text-shadow:
+        0 0 20px rgba(220, 20, 60, 0.4),
+        0 0 60px rgba(220, 20, 60, 0.15),
+        0 2px 4px rgba(0, 0, 0, 0.8);
+    line-height: 1;
+}
+
+.act-title-glitch {
+    position: relative;
+    display: inline-block;
+    animation: act-title-glitch 0.5s steps(1) 0.5s 2;
+}
+
+@keyframes act-title-glitch {
+    0% {
+        clip-path: none;
+        transform: none;
+    }
+
+    25% {
+        clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
+        transform: translateX(-3px);
+    }
+
+    50% {
+        clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+        transform: translateX(3px);
+    }
+
+    75% {
+        clip-path: polygon(0 0%, 100% 0%, 100% 15%, 0 15%);
+        transform: translateX(-1px);
+    }
+
+    100% {
+        clip-path: none;
+        transform: none;
+    }
+}
+
+/* Separator line */
+.act-separator {
+    width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(220, 20, 60, 0.6), transparent);
+    transform-origin: center;
+}
+
+/* Dissolve overlay */
+.act-dissolve-overlay {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    z-index: 20;
+    pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CORRIDOR ENVIRONMENT
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.corridor-env {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 50% 30%, rgba(40, 10, 10, 0.6) 0%, transparent 60%),
+        linear-gradient(180deg, #0a0608 0%, #060304 40%, #080406 100%);
+    transition: filter 0.05s;
+}
+
+.corridor-flicker {
+    animation: corridor-flicker-anim 0.12s steps(1) 10;
+}
+
+@keyframes corridor-flicker-anim {
+
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+
+    10% {
+        filter: brightness(0.4) hue-rotate(10deg);
+    }
+
+    20% {
+        filter: brightness(1.2);
+    }
+
+    30% {
+        filter: brightness(0.3);
+    }
+
+    40% {
+        filter: brightness(1.1);
+    }
+
+    50% {
+        filter: brightness(0.5);
+    }
+
+    60% {
+        filter: brightness(1);
+    }
+
+    70% {
+        filter: brightness(0.6);
+    }
+
+    80% {
+        filter: brightness(1.1);
+    }
+
+    90% {
+        filter: brightness(0.8);
+    }
+}
+
+/* ── Ceiling ─────────────────────────────────────────────────────────────── */
+.corridor-ceiling {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 28%;
+    background:
+        linear-gradient(180deg,
+            #1a1010 0%,
+            #120c0c 40%,
+            #0a0606 100%);
+    border-bottom: 1px solid rgba(60, 30, 30, 0.4);
+}
+
+.ceiling-panel {
+    position: absolute;
+    background: linear-gradient(180deg, #1e1414 0%, #141010 100%);
+    border: 1px solid rgba(80, 40, 40, 0.2);
+}
+
+.ceiling-panel-1 {
+    top: 20%;
+    left: 10%;
+    right: 10%;
+    height: 30%;
+    border-radius: 2px;
+}
+
+.ceiling-panel-2 {
+    top: 55%;
+    left: 20%;
+    right: 20%;
+    height: 20%;
+    border-radius: 1px;
+}
+
+.ceiling-panel-3 {
+    top: 10%;
+    left: 30%;
+    right: 30%;
+    height: 15%;
+    border-radius: 1px;
+}
+
+/* Emergency lighting strips on ceiling */
+.ceiling-light-strip {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg,
+            rgba(220, 20, 60, 0.0) 0%,
+            rgba(220, 20, 60, 0.6) 30%,
+            rgba(220, 20, 60, 0.6) 70%,
+            rgba(220, 20, 60, 0.0) 100%);
+    box-shadow: 0 0 12px rgba(220, 20, 60, 0.5), 0 0 30px rgba(220, 20, 60, 0.2);
+    animation: emergency-pulse 2.5s ease-in-out infinite;
+}
+
+.ceiling-light-left {
+    left: 15%;
+}
+
+.ceiling-light-right {
+    right: 15%;
+}
+
+@keyframes emergency-pulse {
+
+    0%,
+    100% {
+        opacity: 0.7;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* ── Walls ───────────────────────────────────────────────────────────────── */
+.corridor-wall {
+    position: absolute;
+    top: 28%;
+    bottom: 28%;
+    width: 18%;
+    background:
+        repeating-linear-gradient(90deg,
+            transparent,
+            transparent 40px,
+            rgba(60, 30, 30, 0.08) 40px,
+            rgba(60, 30, 30, 0.08) 41px),
+        linear-gradient(180deg, #181010 0%, #120c0c 50%, #0e0808 100%);
+    border: 1px solid rgba(80, 40, 40, 0.15);
+}
+
+.corridor-wall-left {
+    left: 0;
+}
+
+.corridor-wall-right {
+    right: 0;
+}
+
+/* Wall panel lines */
+.wall-panel-lines {
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(0deg,
+            transparent,
+            transparent 60px,
+            rgba(80, 40, 40, 0.12) 60px,
+            rgba(80, 40, 40, 0.12) 61px);
+}
+
+/* Wall rivets */
+.wall-rivet {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #3a2020 0%, #1a1010 100%);
+    border: 1px solid rgba(80, 40, 40, 0.3);
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.wall-rivet-1 {
+    top: 15%;
+}
+
+.wall-rivet-2 {
+    top: 50%;
+}
+
+.wall-rivet-3 {
+    top: 80%;
+}
+
+/* Sparks from damaged wiring */
+.wall-spark {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #ffa040;
+    box-shadow: 0 0 6px #ffa040, 0 0 12px rgba(255, 160, 64, 0.5);
+}
+
+.wall-spark-1 {
+    top: 35%;
+    left: 30%;
+    animation: spark-flicker 0.3s steps(1) infinite;
+}
+
+.wall-spark-2 {
+    top: 65%;
+    left: 60%;
+    animation: spark-flicker 0.4s steps(1) 0.15s infinite;
+}
+
+@keyframes spark-flicker {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    20% {
+        opacity: 0;
+        transform: scale(0.5) translate(2px, -2px);
+    }
+
+    40% {
+        opacity: 1;
+        transform: scale(1.5) translate(-1px, 1px);
+    }
+
+    60% {
+        opacity: 0.3;
+        transform: scale(0.8);
+    }
+
+    80% {
+        opacity: 1;
+        transform: scale(1.2) translate(1px, -1px);
+    }
+
+    100% {
+        opacity: 0.5;
+        transform: scale(0.9);
+    }
+}
+
+/* Wall emergency light strip */
+.wall-light-strip {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 3px;
+    background: linear-gradient(180deg,
+            transparent 5%,
+            rgba(220, 20, 60, 0.5) 25%,
+            rgba(220, 20, 60, 0.5) 75%,
+            transparent 95%);
+    box-shadow: 0 0 10px rgba(220, 20, 60, 0.4);
+    animation: emergency-pulse 2.5s ease-in-out 0.5s infinite;
+}
+
+/* ── Floor ───────────────────────────────────────────────────────────────── */
+.corridor-floor {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 28%;
+    background:
+        linear-gradient(0deg,
+            #0a0606 0%,
+            #120c0c 60%,
+            #1a1010 100%);
+    border-top: 1px solid rgba(80, 40, 40, 0.3);
+    overflow: hidden;
+}
+
+/* Reflective floor surface */
+.floor-reflection {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(220, 20, 60, 0.06) 0%, transparent 60%),
+        linear-gradient(0deg, rgba(220, 20, 60, 0.03) 0%, transparent 50%);
+}
+
+/* Floor grid */
+.floor-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(80, 40, 40, 0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(80, 40, 40, 0.12) 1px, transparent 1px);
+    background-size: 60px 30px;
+    transform: perspective(200px) rotateX(30deg);
+    transform-origin: top center;
+}
+
+/* Floor center line */
+.floor-center-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: linear-gradient(0deg, transparent, rgba(220, 20, 60, 0.15), transparent);
+    transform: translateX(-50%);
+}
+
+/* ── Volumetric Fog ──────────────────────────────────────────────────────── */
+.corridor-fog {
+    position: absolute;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.corridor-fog-1 {
+    bottom: 20%;
+    left: 0;
+    right: 0;
+    height: 15%;
+    background: linear-gradient(0deg,
+            rgba(20, 8, 8, 0.4) 0%,
+            rgba(20, 8, 8, 0.1) 60%,
+            transparent 100%);
+    animation: fog-drift-slow 15s ease-in-out infinite alternate;
+}
+
+.corridor-fog-2 {
+    top: 25%;
+    left: 0;
+    right: 0;
+    height: 10%;
+    background: linear-gradient(180deg,
+            transparent 0%,
+            rgba(15, 5, 5, 0.15) 50%,
+            transparent 100%);
+    animation: fog-drift-slow 20s ease-in-out 3s infinite alternate;
+}
+
+.corridor-fog-3 {
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0, 0, 0, 0.3) 100%);
+}
+
+@keyframes fog-drift-slow {
+    0% {
+        transform: translateX(-15px);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: translateX(15px);
+        opacity: 1;
+    }
+}
+
+/* ── Door ────────────────────────────────────────────────────────────────── */
+.corridor-door {
+    position: absolute;
+    left: 50%;
+    top: 28%;
+    bottom: 28%;
+    width: 22%;
+    transform: translateX(-50%);
+    z-index: 10;
+}
+
+.door-frame {
+    position: absolute;
+    inset: 0;
+    border: 3px solid rgba(80, 40, 40, 0.6);
+    background: rgba(10, 5, 5, 0.3);
+    box-shadow:
+        inset 0 0 30px rgba(0, 0, 0, 0.8),
+        0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Frame status lights */
+.door-frame-lights {
+    position: absolute;
+    top: 8px;
+    right: -14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.door-frame-light {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #dc143c;
+    box-shadow: 0 0 8px rgba(220, 20, 60, 0.8);
+    animation: status-light-pulse 1.8s ease-in-out infinite;
+}
+
+.door-frame-light:nth-child(2) {
+    animation-delay: 0.3s;
+}
+
+.door-frame-light:nth-child(3) {
+    animation-delay: 0.6s;
+}
+
+.door-frame-light:nth-child(4) {
+    animation-delay: 0.9s;
+}
+
+@keyframes status-light-pulse {
+
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Door surface */
+.door-surface {
+    position: absolute;
+    inset: 4px;
+    background:
+        repeating-linear-gradient(0deg,
+            transparent,
+            transparent 20px,
+            rgba(60, 30, 30, 0.06) 20px,
+            rgba(60, 30, 30, 0.06) 21px),
+        linear-gradient(180deg, #1e1414 0%, #141010 50%, #1a1212 100%);
+    border: 1px solid rgba(60, 30, 30, 0.3);
+}
+
+.door-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background: linear-gradient(180deg, #201616 0%, #181010 100%);
+    border: 1px solid rgba(80, 40, 40, 0.15);
+}
+
+.door-panel-top {
+    top: 0;
+    height: 48%;
+}
+
+.door-panel-bottom {
+    bottom: 0;
+    height: 48%;
+}
+
+.door-center-seam {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 2px;
+    background: rgba(0, 0, 0, 0.8);
+    transform: translateY(-50%);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.9);
+}
+
+/* Door bolts */
+.door-bolt {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #3a2020 0%, #1a1010 100%);
+    border: 1px solid rgba(80, 40, 40, 0.4);
+}
+
+.door-bolt-tl {
+    top: 8px;
+    left: 8px;
+}
+
+.door-bolt-tr {
+    top: 8px;
+    right: 8px;
+}
+
+.door-bolt-bl {
+    bottom: 8px;
+    left: 8px;
+}
+
+.door-bolt-br {
+    bottom: 8px;
+    right: 8px;
+}
+
+/* Warning stripes */
+.door-warning-stripe {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: repeating-linear-gradient(90deg,
+            rgba(220, 20, 60, 0.3) 0px,
+            rgba(220, 20, 60, 0.3) 12px,
+            rgba(0, 0, 0, 0.3) 12px,
+            rgba(0, 0, 0, 0.3) 24px);
+}
+
+.door-warning-top {
+    top: 0;
+}
+
+.door-warning-bottom {
+    bottom: 0;
+}
+
+/* Keypad mount area */
+.keypad-mount {
+    position: absolute;
+    right: 26%;
+    top: 38%;
+    bottom: 38%;
+    width: 6%;
+    background: rgba(20, 10, 10, 0.5);
+    border: 1px solid rgba(60, 30, 30, 0.3);
+    border-radius: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   KEYPAD LOCK PANEL
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.keypad-panel {
+    position: relative;
+    width: 240px;
+    background:
+        linear-gradient(135deg, #141010 0%, #0e0a0a 50%, #121010 100%);
+    border: 1px solid rgba(100, 50, 50, 0.4);
+    border-radius: 6px;
+    padding: 20px 18px 18px;
+    box-shadow:
+        0 0 40px rgba(0, 0, 0, 0.8),
+        0 0 20px rgba(220, 20, 60, 0.08),
+        inset 0 1px 0 rgba(120, 60, 60, 0.2),
+        inset 0 0 30px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+/* Corner brackets */
+.kp-corner {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+}
+
+.kp-tl {
+    top: 5px;
+    left: 5px;
+    border-top: 1px solid rgba(220, 20, 60, 0.5);
+    border-left: 1px solid rgba(220, 20, 60, 0.5);
+}
+
+.kp-tr {
+    top: 5px;
+    right: 5px;
+    border-top: 1px solid rgba(220, 20, 60, 0.5);
+    border-right: 1px solid rgba(220, 20, 60, 0.5);
+}
+
+.kp-bl {
+    bottom: 5px;
+    left: 5px;
+    border-bottom: 1px solid rgba(220, 20, 60, 0.5);
+    border-left: 1px solid rgba(220, 20, 60, 0.5);
+}
+
+.kp-br {
+    bottom: 5px;
+    right: 5px;
+    border-bottom: 1px solid rgba(220, 20, 60, 0.5);
+    border-right: 1px solid rgba(220, 20, 60, 0.5);
+}
+
+/* Panel header */
+.keypad-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.keypad-header-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(220, 20, 60, 0.6);
+    box-shadow: 0 0 6px rgba(220, 20, 60, 0.4);
+    flex-shrink: 0;
+}
+
+.keypad-header-label {
+    font-size: 8px;
+    letter-spacing: 2.5px;
+    color: rgba(200, 150, 150, 0.5);
+    flex: 1;
+    text-align: center;
+}
+
+/* Status line */
+.keypad-status-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding: 6px 8px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(80, 40, 40, 0.3);
+    border-radius: 3px;
+}
+
+.keypad-status-text {
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: rgba(200, 160, 160, 0.6);
+}
+
+.keypad-status-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+/* ── Digit Slots ─────────────────────────────────────────────────────────── */
+.keypad-slots {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    justify-content: center;
+}
+
+.keypad-slot {
+    position: relative;
+    width: 46px;
+    height: 54px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(100, 50, 50, 0.4);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.keypad-slot--active {
+    border-color: rgba(220, 20, 60, 0.6);
+    box-shadow: 0 0 12px rgba(220, 20, 60, 0.2), inset 0 0 8px rgba(220, 20, 60, 0.05);
+    background: rgba(30, 5, 5, 0.6);
+}
+
+.keypad-slot--correct {
+    border-color: rgba(0, 180, 140, 0.7);
+    box-shadow: 0 0 16px rgba(0, 180, 140, 0.3), inset 0 0 10px rgba(0, 180, 140, 0.08);
+    background: rgba(0, 20, 15, 0.6);
+}
+
+.keypad-slot--wrong {
+    border-color: rgba(220, 20, 60, 0.8);
+    box-shadow: 0 0 16px rgba(220, 20, 60, 0.4), inset 0 0 10px rgba(220, 20, 60, 0.1);
+    background: rgba(30, 0, 0, 0.6);
+    animation: slot-wrong-pulse 0.4s ease-out;
+}
+
+@keyframes slot-wrong-pulse {
+    0% {
+        box-shadow: 0 0 30px rgba(220, 20, 60, 0.8);
+    }
+
+    100% {
+        box-shadow: 0 0 16px rgba(220, 20, 60, 0.4);
+    }
+}
+
+.keypad-slot-digit {
+    font-family: 'Orbitron', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: #e8eaf0;
+    text-shadow: 0 0 8px currentColor;
+    line-height: 1;
+}
+
+.keypad-slot--correct .keypad-slot-digit {
+    color: #00c8a0;
+    text-shadow: 0 0 12px rgba(0, 200, 160, 0.6);
+}
+
+.keypad-slot--wrong .keypad-slot-digit {
+    color: #dc143c;
+    text-shadow: 0 0 12px rgba(220, 20, 60, 0.6);
+}
+
+.keypad-slot-cursor {
+    width: 2px;
+    height: 24px;
+    background: rgba(220, 20, 60, 0.8);
+    border-radius: 1px;
+    box-shadow: 0 0 6px rgba(220, 20, 60, 0.5);
+}
+
+/* Slot indicator line */
+.keypad-slot-indicator {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(220, 20, 60, 0.3);
+    transition: background 0.2s;
+}
+
+.keypad-slot--correct .keypad-slot-indicator {
+    background: rgba(0, 200, 160, 0.6);
+}
+
+.keypad-slot--wrong .keypad-slot-indicator {
+    background: rgba(220, 20, 60, 0.8);
+}
+
+.keypad-slot--active .keypad-slot-indicator {
+    background: rgba(220, 20, 60, 0.6);
+}
+
+/* Slot corner brackets */
+.ks-corner {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    opacity: 0.4;
+}
+
+.ks-tl {
+    top: 2px;
+    left: 2px;
+    border-top: 1px solid currentColor;
+    border-left: 1px solid currentColor;
+    color: rgba(220, 20, 60, 0.6);
+}
+
+.ks-tr {
+    top: 2px;
+    right: 2px;
+    border-top: 1px solid currentColor;
+    border-right: 1px solid currentColor;
+    color: rgba(220, 20, 60, 0.6);
+}
+
+.ks-bl {
+    bottom: 2px;
+    left: 2px;
+    border-bottom: 1px solid currentColor;
+    border-left: 1px solid currentColor;
+    color: rgba(220, 20, 60, 0.6);
+}
+
+.ks-br {
+    bottom: 2px;
+    right: 2px;
+    border-bottom: 1px solid currentColor;
+    border-right: 1px solid currentColor;
+    color: rgba(220, 20, 60, 0.6);
+}
+
+/* Divider */
+.keypad-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(100, 50, 50, 0.4), transparent);
+    margin-bottom: 12px;
+}
+
+/* ── Numeric Grid ────────────────────────────────────────────────────────── */
+.keypad-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+}
+
+.keypad-btn {
+    height: 38px;
+    background: rgba(20, 10, 10, 0.8);
+    border: 1px solid rgba(100, 50, 50, 0.35);
+    border-radius: 4px;
+    color: rgba(220, 180, 180, 0.85);
+    font-family: 'Orbitron', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+    box-shadow: inset 0 1px 0 rgba(120, 60, 60, 0.1), 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.keypad-btn:hover {
+    background: rgba(40, 15, 15, 0.9);
+    border-color: rgba(220, 20, 60, 0.4);
+    box-shadow: 0 0 10px rgba(220, 20, 60, 0.1), inset 0 1px 0 rgba(120, 60, 60, 0.2);
+    color: rgba(240, 200, 200, 1);
+}
+
+.keypad-btn--back {
+    color: rgba(220, 20, 60, 0.6);
+    font-size: 16px;
+}
+
+.keypad-btn--back:hover {
+    color: rgba(220, 20, 60, 0.9);
+}
+
+.keypad-btn-spacer {
+    /* Empty grid cell */
+}
+
+/* Energy lines */
+.keypad-energy-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-top: 12px;
+    padding: 0 4px;
+}
+
+.keypad-energy-line {
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(220, 20, 60, 0.15) 20%,
+            rgba(220, 20, 60, 0.3) 50%,
+            rgba(220, 20, 60, 0.15) 80%,
+            transparent);
+    animation: energy-flow 3s linear infinite;
+}
+
+.keypad-energy-line:nth-child(2) {
+    animation-delay: 1s;
+    opacity: 0.6;
+}
+
+.keypad-energy-line:nth-child(3) {
+    animation-delay: 2s;
+    opacity: 0.3;
+}
+
+@keyframes energy-flow {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UNLOCK SEQUENCE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.unlock-sequence {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    pointer-events: none;
+}
+
+/* Status lights */
+.unlock-status-lights {
+    position: absolute;
+    left: 50%;
+    top: 26%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 25;
+}
+
+.unlock-status-light {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    transition: background 0.3s, box-shadow 0.3s;
+}
+
+/* Door container */
+.unlock-door-container {
+    position: absolute;
+    left: 50%;
+    top: 28%;
+    bottom: 28%;
+    width: 22%;
+    transform: translateX(-50%);
+    z-index: 22;
+    overflow: hidden;
+}
+
+/* Door panels */
+.unlock-door-panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    background:
+        repeating-linear-gradient(0deg,
+            transparent,
+            transparent 20px,
+            rgba(60, 30, 30, 0.06) 20px,
+            rgba(60, 30, 30, 0.06) 21px),
+        linear-gradient(180deg, #1e1414 0%, #141010 50%, #1a1212 100%);
+    border: 1px solid rgba(60, 30, 30, 0.3);
+}
+
+.unlock-door-left {
+    left: 0;
+}
+
+.unlock-door-right {
+    right: 0;
+}
+
+/* Internal light bloom */
+.unlock-light-bloom {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 50%,
+            rgba(200, 180, 140, 0.6) 0%,
+            rgba(180, 140, 100, 0.3) 30%,
+            rgba(100, 80, 60, 0.1) 60%,
+            transparent 80%);
+    z-index: 1;
+}
+
+/* Door frame glow */
+.unlock-door-glow {
+    position: absolute;
+    left: 50%;
+    top: 28%;
+    bottom: 28%;
+    width: 22%;
+    transform: translateX(-50%);
+    box-shadow: 0 0 40px rgba(200, 160, 100, 0.4), 0 0 80px rgba(200, 160, 100, 0.15);
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 23;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SUCCESS OVERLAY
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.success-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background:
+        radial-gradient(ellipse at 50% 50%, rgba(0, 30, 20, 0.95) 0%, rgba(0, 5, 3, 0.98) 70%),
+        rgba(0, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+/* Blueprint SVG */
+.success-blueprint {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* Text block */
+.success-text-block {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+    padding: 40px 60px;
+}
+
+/* Separator */
+.success-separator {
+    width: 280px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 200, 160, 0.5), transparent);
+    transform-origin: center;
+}
+
+/* ACCESS GRANTED */
+.success-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(28px, 5vw, 56px);
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    color: #e8eaf0;
+    text-transform: uppercase;
+    text-shadow:
+        0 0 20px rgba(0, 200, 160, 0.5),
+        0 0 60px rgba(0, 200, 160, 0.2),
+        0 2px 4px rgba(0, 0, 0, 0.8);
+    line-height: 1;
+}
+
+/* ENTRY SECURED */
+.success-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(11px, 1.5vw, 16px);
+    font-weight: 400;
+    letter-spacing: 0.4em;
+    color: rgba(0, 200, 160, 0.7);
+    text-transform: uppercase;
+}
+
+/* Progress bar */
+.success-progress-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 320px;
+    margin-top: 8px;
+}
+
+.success-progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 3px;
+    color: rgba(0, 200, 160, 0.4);
+    text-transform: uppercase;
+}
+
+.success-progress-track {
+    position: relative;
+    width: 100%;
+    height: 3px;
+    background: rgba(0, 200, 160, 0.08);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.success-progress-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(0, 200, 160, 0.4), rgba(0, 200, 160, 0.9));
+    border-radius: 2px;
+}
+
+.success-progress-glow {
+    position: absolute;
+    top: -4px;
+    width: 20px;
+    height: 11px;
+    background: rgba(0, 200, 160, 0.8);
+    filter: blur(4px);
+    border-radius: 50%;
+    transform: translateX(-50%);
+}
+
+.success-progress-pct {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: rgba(0, 200, 160, 0.6);
+    align-self: flex-end;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HUD
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.level1-hud {
+    position: absolute;
+    top: 20px;
+    left: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 40;
+}
+
+.hud-level-tag,
+.hud-mission-tag {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.hud-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 2.5px;
+    color: rgba(200, 150, 150, 0.35);
+}
+
+.hud-value {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: rgba(220, 20, 60, 0.6);
+    font-weight: 700;
+}
