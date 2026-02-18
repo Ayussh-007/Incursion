@@ -1,0 +1,111 @@
+/**
+ * AEGIS Operative Definitions
+ * Each character maps to a specific zone on the tactical map
+ */
+
+export const CHARACTERS = [
+    {
+        id: 'strategist',
+        index: 0,
+        codename: 'PHANTOM-1',
+        title: 'The Strategist',
+        division: 'Bridge Command',
+        zone: 'Bridge',
+        keybind: '1',
+        abilityKey: 'E',
+        abilityName: 'Neural Override',
+        abilityDescription:
+            'Temporarily reveals hidden pathways, puzzle hints, and enemy logic patterns across the level.',
+        cooldown: 45,
+        themeKey: 'strategist',
+        // Zone position on tactical map (percentage of map dimensions)
+        zonePosition: { x: 50, y: 15 },
+        // Avatar gradient fallback (used when image unavailable)
+        avatarGradient: 'linear-gradient(135deg, #0a1628 0%, #0d2545 50%, #1a3a6b 100%)',
+        avatarAccent: '#1e90ff',
+        abilityType: 'scan_wave',
+        abilityIcon: '⬡',
+    },
+    {
+        id: 'chrono',
+        index: 1,
+        codename: 'EPOCH-2',
+        title: 'The Chrono Architect',
+        division: 'Chronovizer Division',
+        zone: 'Chronovizer Room',
+        keybind: '2',
+        abilityKey: 'E',
+        abilityName: 'Temporal Shift',
+        abilityDescription:
+            'Slows environmental hazards and puzzle timers for a short duration, allowing manipulation of time-sensitive mechanics.',
+        cooldown: 60,
+        themeKey: 'chrono',
+        zonePosition: { x: 25, y: 40 },
+        avatarGradient: 'linear-gradient(135deg, #071a0e 0%, #0d2e18 50%, #0f4020 100%)',
+        avatarAccent: '#00ff88',
+        abilityType: 'time_ripple',
+        abilityIcon: '◎',
+    },
+    {
+        id: 'archivist',
+        index: 2,
+        codename: 'CIPHER-3',
+        title: 'The Archivist',
+        division: 'Archive Vault Intelligence',
+        zone: 'Archive Vault',
+        keybind: '3',
+        abilityKey: 'E',
+        abilityName: 'Data Extraction',
+        abilityDescription:
+            'Instantly decrypts one locked system or reveals a codex digit fragment clue within a level.',
+        cooldown: 50,
+        themeKey: 'archivist',
+        zonePosition: { x: 75, y: 40 },
+        avatarGradient: 'linear-gradient(135deg, #1a1200 0%, #2e2000 50%, #3d2c00 100%)',
+        avatarAccent: '#ffc107',
+        abilityType: 'data_surge',
+        abilityIcon: '◈',
+    },
+    {
+        id: 'biodefender',
+        index: 3,
+        codename: 'AEGIS-4',
+        title: 'The Bio-Defender',
+        division: 'Bioshield Chamber Corps',
+        zone: 'Bioshield Chamber',
+        keybind: '4',
+        abilityKey: 'E',
+        abilityName: 'Adaptive Shield',
+        abilityDescription:
+            'Deploys a temporary defensive barrier that protects from environmental damage or alien interference.',
+        cooldown: 70,
+        themeKey: 'biodefender',
+        zonePosition: { x: 30, y: 70 },
+        avatarGradient: 'linear-gradient(135deg, #041a0a 0%, #082e12 50%, #0a3d18 100%)',
+        avatarAccent: '#00c853',
+        abilityType: 'shield_dome',
+        abilityIcon: '⬟',
+    },
+    {
+        id: 'engineer',
+        index: 4,
+        codename: 'FORGE-5',
+        title: 'The Engineer',
+        division: 'Engineering & Armory',
+        zone: 'Engineering/Armory',
+        keybind: '5',
+        abilityKey: 'E',
+        abilityName: 'System Overdrive',
+        abilityDescription:
+            'Temporarily boosts interaction speed, unlock speed, and mechanical manipulation efficiency.',
+        cooldown: 40,
+        themeKey: 'engineer',
+        zonePosition: { x: 70, y: 70 },
+        avatarGradient: 'linear-gradient(135deg, #1a0800 0%, #2e1200 50%, #3d1800 100%)',
+        avatarAccent: '#ff5722',
+        abilityType: 'energy_surge',
+        abilityIcon: '⚙',
+    },
+];
+
+export default CHARACTERS;

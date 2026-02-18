@@ -7,6 +7,7 @@ const SpaceScene = lazy(() => import('./scenes/SpaceScene'));
 const TransitionSequence = lazy(() => import('./components/ui/TransitionSequence'));
 const LoginTerminal = lazy(() => import('./components/ui/LoginTerminal'));
 const CutsceneSequence = lazy(() => import('./components/ui/CutsceneSequence'));
+const AegisScene = lazy(() => import('./scenes/AegisScene'));
 
 // Loading screen component
 function LoadingScreen({ text = 'INITIALIZING...' }) {
@@ -59,6 +60,13 @@ function App() {
       {currentScene === 'CUTSCENE' && (
         <Suspense fallback={<LoadingScreen text="ESTABLISHING DEEP SPACE LINK..." />}>
           <CutsceneSequence />
+        </Suspense>
+      )}
+
+      {/* AEGIS: Operative selection */}
+      {currentScene === 'AEGIS' && (
+        <Suspense fallback={<LoadingScreen text="INITIALIZING OPERATIVE SELECTION..." />}>
+          <AegisScene />
         </Suspense>
       )}
 

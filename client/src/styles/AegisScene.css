@@ -1,0 +1,914 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   AegisScene.css — Project AEGIS Operative Selection Interface
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Base Scene ──────────────────────────────────────────────────────────── */
+.aegis-scene {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-primary, #020810);
+    font-family: 'Courier New', 'Consolas', monospace;
+    overflow: hidden;
+    cursor: crosshair;
+}
+
+/* ── Theme Root ──────────────────────────────────────────────────────────── */
+.aegis-theme-root {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* ── Background Gradient ─────────────────────────────────────────────────── */
+.aegis-bg-gradient {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ── Scanlines ───────────────────────────────────────────────────────────── */
+.aegis-scanlines {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background: repeating-linear-gradient(0deg,
+            transparent,
+            transparent 2px,
+            var(--scanline-color, rgba(30, 144, 255, 0.02)) 2px,
+            var(--scanline-color, rgba(30, 144, 255, 0.02)) 4px);
+}
+
+/* ── Grid Overlay ────────────────────────────────────────────────────────── */
+.aegis-grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background-image:
+        linear-gradient(var(--grid-color, rgba(30, 144, 255, 0.04)) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color, rgba(30, 144, 255, 0.04)) 1px, transparent 1px);
+    background-size: 60px 60px;
+}
+
+/* ── Particles Canvas ────────────────────────────────────────────────────── */
+.aegis-particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* ── Top HUD Bar ─────────────────────────────────────────────────────────── */
+.aegis-top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+    border-bottom: 1px solid var(--hud-border, rgba(30, 144, 255, 0.3));
+    z-index: 20;
+    backdrop-filter: blur(4px);
+}
+
+.top-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    letter-spacing: 2px;
+}
+
+.top-bar-label {
+    color: var(--accent, #1e90ff);
+    font-weight: bold;
+}
+
+.top-bar-sep {
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.top-bar-sub {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 10px;
+}
+
+.top-bar-center {
+    font-size: 10px;
+    letter-spacing: 2px;
+}
+
+.top-bar-status {
+    color: var(--accent, #1e90ff);
+    opacity: 0.8;
+}
+
+.top-bar-right {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 1px;
+}
+
+.top-bar-key {
+    color: var(--accent, #1e90ff);
+    font-weight: bold;
+}
+
+/* ── Main Layout ─────────────────────────────────────────────────────────── */
+.aegis-main {
+    position: absolute;
+    top: 44px;
+    bottom: 100px;
+    left: 0;
+    right: 0;
+    display: flex;
+    gap: 16px;
+    padding: 16px 20px;
+    z-index: 10;
+}
+
+/* ── Tactical Map Panel ──────────────────────────────────────────────────── */
+.aegis-map-panel {
+    flex: 0 0 420px;
+    display: flex;
+    flex-direction: column;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--hud-border, rgba(30, 144, 255, 0.25));
+    border-radius: 4px;
+    backdrop-filter: blur(8px);
+    overflow: hidden;
+    box-shadow: 0 0 40px var(--hud-glow, rgba(30, 144, 255, 0.1));
+}
+
+.map-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--hud-border, rgba(30, 144, 255, 0.2));
+    font-size: 9px;
+    letter-spacing: 2px;
+}
+
+.map-panel-title {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.map-panel-ping {
+    color: var(--accent, #1e90ff);
+    font-size: 9px;
+}
+
+/* ── Tactical Map Container ──────────────────────────────────────────────── */
+.tactical-map-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.map-bg-layer {
+    position: absolute;
+    inset: -20px;
+    background: radial-gradient(ellipse at 50% 50%, var(--accent-glow, rgba(30, 144, 255, 0.04)) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.map-svg-layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tactical-svg {
+    width: 100%;
+    height: 100%;
+    max-height: 380px;
+}
+
+.map-fg-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.map-zone {
+    transition: opacity 0.2s;
+}
+
+.map-zone:hover {
+    opacity: 0.9;
+}
+
+/* ── Cards Panel ─────────────────────────────────────────────────────────── */
+.aegis-cards-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow: hidden;
+}
+
+.cards-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px;
+    font-size: 10px;
+    letter-spacing: 2px;
+}
+
+.cards-panel-title {
+    color: var(--accent, #1e90ff);
+    font-weight: bold;
+}
+
+.cards-panel-count {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* ── Character Grid ──────────────────────────────────────────────────────── */
+.character-grid {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+    align-items: stretch;
+}
+
+/* ── Character Card ──────────────────────────────────────────────────────── */
+.character-card {
+    flex: 1;
+    position: relative;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid var(--char-color-dim, rgba(30, 144, 255, 0.2));
+    border-radius: 6px;
+    backdrop-filter: blur(12px);
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    min-width: 0;
+}
+
+.character-card.selected {
+    border-color: var(--char-color, #1e90ff);
+    box-shadow:
+        0 0 20px var(--char-glow, rgba(30, 144, 255, 0.2)),
+        0 0 60px var(--char-glow, rgba(30, 144, 255, 0.08)),
+        inset 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Emissive border glow */
+.card-glow-border {
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    pointer-events: none;
+    box-shadow: inset 0 0 0 1px var(--char-color-dim, rgba(30, 144, 255, 0.1));
+    transition: box-shadow 0.3s;
+}
+
+.character-card.selected .card-glow-border {
+    box-shadow:
+        inset 0 0 0 1px var(--char-color, #1e90ff),
+        inset 0 0 30px var(--char-glow, rgba(30, 144, 255, 0.1));
+}
+
+/* Key binding */
+.card-keybind {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 10px;
+    z-index: 2;
+}
+
+.keybind-bracket {
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.keybind-key {
+    color: var(--char-color, #1e90ff);
+    font-weight: bold;
+    margin: 0 1px;
+}
+
+/* Avatar section */
+.card-avatar-section {
+    position: relative;
+    height: 130px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.avatar-silhouette {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 0 8px currentColor);
+}
+
+.avatar-glow {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.avatar-scan {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background: repeating-linear-gradient(0deg,
+            transparent,
+            transparent 3px,
+            rgba(0, 0, 0, 0.15) 3px,
+            rgba(0, 0, 0, 0.15) 4px);
+    pointer-events: none;
+}
+
+/* Avatar cooldown overlay */
+.avatar-cooldown-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.cooldown-ring-svg {
+    position: absolute;
+}
+
+/* Card body */
+.card-body {
+    padding: 10px 10px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-height: 0;
+}
+
+.card-codename {
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.card-title {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.5px;
+}
+
+.card-division {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 8px;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 1px;
+}
+
+.division-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.card-divider {
+    height: 1px;
+    margin: 3px 0;
+}
+
+/* Ability section */
+.card-ability {
+    flex: 1;
+}
+
+.ability-header {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 3px;
+}
+
+.ability-icon {
+    font-size: 12px;
+    line-height: 1;
+}
+
+.ability-name {
+    font-size: 9px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.ability-description {
+    font-size: 8px;
+    color: rgba(255, 255, 255, 0.4);
+    line-height: 1.4;
+    letter-spacing: 0.3px;
+}
+
+/* Cooldown info */
+.card-cooldown-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 8px;
+    color: rgba(255, 255, 255, 0.3);
+    letter-spacing: 1px;
+}
+
+.cooldown-value {
+    font-weight: bold;
+}
+
+/* Ability key */
+.card-ability-key {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 8px;
+    color: rgba(255, 255, 255, 0.25);
+    letter-spacing: 1px;
+}
+
+.ability-key-badge {
+    border: 1px solid;
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-size: 9px;
+    font-weight: bold;
+}
+
+/* Selected indicator bar */
+.card-selected-indicator {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    transform-origin: left;
+}
+
+/* Corner brackets */
+.card-corner {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    pointer-events: none;
+}
+
+.card-corner.tl {
+    top: 4px;
+    left: 4px;
+    border-top: 1px solid var(--char-color, #1e90ff);
+    border-left: 1px solid var(--char-color, #1e90ff);
+}
+
+.card-corner.tr {
+    top: 4px;
+    right: 4px;
+    border-top: 1px solid var(--char-color, #1e90ff);
+    border-right: 1px solid var(--char-color, #1e90ff);
+}
+
+.card-corner.bl {
+    bottom: 4px;
+    left: 4px;
+    border-bottom: 1px solid var(--char-color, #1e90ff);
+    border-left: 1px solid var(--char-color, #1e90ff);
+}
+
+.card-corner.br {
+    bottom: 4px;
+    right: 4px;
+    border-bottom: 1px solid var(--char-color, #1e90ff);
+    border-right: 1px solid var(--char-color, #1e90ff);
+}
+
+/* ── Deploy Button ───────────────────────────────────────────────────────── */
+.deploy-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 24px;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--char-color, #1e90ff);
+    border-radius: 4px;
+    color: var(--char-color, #1e90ff);
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 20px var(--char-color, #1e90ff)22, inset 0 0 20px rgba(0, 0, 0, 0.3);
+    transition: box-shadow 0.3s, background 0.3s;
+    flex-shrink: 0;
+}
+
+.deploy-button:hover {
+    background: rgba(var(--accent-rgb, 30, 144, 255), 0.1);
+    box-shadow: 0 0 40px var(--char-color, #1e90ff)44, inset 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.deploy-icon {
+    font-size: 10px;
+}
+
+.deploy-key {
+    font-size: 9px;
+    opacity: 0.5;
+    margin-left: 4px;
+}
+
+/* ── Ability HUD ─────────────────────────────────────────────────────────── */
+.ability-hud {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 100%);
+    border-top: 1px solid var(--hud-border, rgba(30, 144, 255, 0.3));
+    backdrop-filter: blur(8px);
+    z-index: 20;
+}
+
+.hud-info-left,
+.hud-info-right {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 180px;
+}
+
+.hud-info-right {
+    align-items: flex-end;
+}
+
+.hud-operative-label,
+.hud-ability-label {
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.3);
+    letter-spacing: 2px;
+}
+
+.hud-codename,
+.hud-ability-name {
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.hud-division,
+.hud-cooldown-stat {
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 1px;
+}
+
+/* Ability center button */
+.hud-ability-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.hud-ability-button {
+    position: relative;
+    width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+
+.hud-ability-button.ready:hover {
+    transform: scale(1.08);
+}
+
+.hud-ability-button.cooldown {
+    cursor: not-allowed;
+}
+
+.hud-ability-ring {
+    position: absolute;
+    inset: 0;
+}
+
+.hud-ability-icon {
+    position: relative;
+    z-index: 2;
+    font-size: 24px;
+    line-height: 1;
+    filter: drop-shadow(0 0 6px currentColor);
+}
+
+.hud-cooldown-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    z-index: 3;
+}
+
+.hud-countdown {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.hud-key-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* HUD corners */
+.hud-corner {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+}
+
+.hud-tl {
+    top: 6px;
+    left: 16px;
+    border-top: 1px solid var(--hud-border, rgba(30, 144, 255, 0.4));
+    border-left: 1px solid var(--hud-border, rgba(30, 144, 255, 0.4));
+}
+
+.hud-tr {
+    top: 6px;
+    right: 16px;
+    border-top: 1px solid var(--hud-border, rgba(30, 144, 255, 0.4));
+    border-right: 1px solid var(--hud-border, rgba(30, 144, 255, 0.4));
+}
+
+/* ── Ability Effect Overlay ──────────────────────────────────────────────── */
+.ability-effect-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Scan wave */
+.effect-scan-wave {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 40px;
+}
+
+.scan-line {
+    height: 2px;
+    width: 100%;
+    transform-origin: left;
+}
+
+.scan-grid {
+    position: absolute;
+    inset: 0;
+    background-size: 40px 40px;
+}
+
+/* Time ripple */
+.effect-time-ripple {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ripple-ring {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+}
+
+.time-blur {
+    position: absolute;
+    inset: 0;
+}
+
+/* Data surge */
+.effect-data-surge {
+    position: absolute;
+    inset: 0;
+}
+
+.data-surge-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.data-surge-flash {
+    position: absolute;
+    inset: 0;
+}
+
+/* Shield dome */
+.effect-shield-dome {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dome-ring {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+}
+
+.shield-hex {
+    position: absolute;
+    inset: 0;
+}
+
+.shield-ripple {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+}
+
+/* Energy surge */
+.effect-energy-surge {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.surge-edge {
+    position: absolute;
+    height: 3px;
+    width: 100%;
+}
+
+.surge-edge.surge-top {
+    top: 0;
+    transform-origin: left;
+}
+
+.surge-edge.surge-bottom {
+    bottom: 0;
+    transform-origin: left;
+}
+
+.surge-edge.surge-left {
+    width: 3px;
+    height: 100%;
+    left: 0;
+    transform-origin: top;
+}
+
+.surge-edge.surge-right {
+    width: 3px;
+    height: 100%;
+    right: 0;
+    transform-origin: top;
+}
+
+.surge-burst {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+}
+
+.surge-line {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    transform-origin: center;
+}
+
+/* Ability name flash */
+.ability-name-flash {
+    position: absolute;
+    font-size: 28px;
+    font-weight: bold;
+    letter-spacing: 6px;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+    z-index: 10;
+}
+
+/* ── Full-screen Corner Brackets ─────────────────────────────────────────── */
+.aegis-bracket {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    z-index: 25;
+    pointer-events: none;
+}
+
+.aegis-tl {
+    top: 8px;
+    left: 8px;
+    border-top: 1px solid var(--accent, #1e90ff);
+    border-left: 1px solid var(--accent, #1e90ff);
+    opacity: 0.5;
+}
+
+.aegis-tr {
+    top: 8px;
+    right: 8px;
+    border-top: 1px solid var(--accent, #1e90ff);
+    border-right: 1px solid var(--accent, #1e90ff);
+    opacity: 0.5;
+}
+
+.aegis-bl {
+    bottom: 8px;
+    left: 8px;
+    border-bottom: 1px solid var(--accent, #1e90ff);
+    border-left: 1px solid var(--accent, #1e90ff);
+    opacity: 0.5;
+}
+
+.aegis-br {
+    bottom: 8px;
+    right: 8px;
+    border-bottom: 1px solid var(--accent, #1e90ff);
+    border-right: 1px solid var(--accent, #1e90ff);
+    opacity: 0.5;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 1200px) {
+    .aegis-map-panel {
+        flex: 0 0 320px;
+    }
+}
+
+@media (max-width: 900px) {
+    .aegis-main {
+        flex-direction: column;
+    }
+
+    .aegis-map-panel {
+        flex: 0 0 200px;
+    }
+
+    .character-grid {
+        flex-wrap: wrap;
+    }
+
+    .character-card {
+        flex: 0 0 calc(33.33% - 8px);
+    }
+}
