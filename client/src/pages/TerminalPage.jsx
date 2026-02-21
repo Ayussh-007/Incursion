@@ -7,7 +7,7 @@
  */
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import axios from 'axios';
 
 const LoginTerminal = lazy(() => import('../components/ui/LoginTerminal'));
 
@@ -31,19 +31,24 @@ export default function TerminalPage() {
             setChecking(false);
             return;
         }
-        api.get('/auth/me')
+
+        // Use a raw axios call with a short timeout to avoid the shared
+        // interceptor's 401-redirect logic, which can cause loops here.
+        const baseURL = import.meta.env.VITE_API_URL || '/api';
+        axios.get(`${baseURL}/auth/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+            timeout: 3000,
+        })
             .then(({ data }) => {
                 const lvl = Math.max(1, data.currentLevel);
                 if (data.hasCompletedIntro) {
-                    // Returning user who already saw the mission intro — go straight to level
                     navigate(`/level/${lvl}`, { replace: true });
                 } else {
-                    // Has a token but hasn't completed the aegis/char-intro flow yet
                     navigate('/mission', { replace: true });
                 }
             })
             .catch(() => {
-                // Invalid token — show terminal
+                // Invalid / expired token or server unreachable — show terminal
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
                 setChecking(false);
