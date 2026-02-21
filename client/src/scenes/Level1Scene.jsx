@@ -19,12 +19,24 @@ const TIMER_SECONDS = 180; // 3 minutes
 const NEURAL_COOLDOWN = 45; // seconds
 
 // ── Morse code panels — embedded in corridor walls ─────────────────────────────
+// Puzzle chain:
+//   UV mode (L) illuminates Morse on both walls
+//   Left  panel: .---- -...   (encodes "1B" in international Morse)
+//   Right panel: ...-- --...  (encodes "37" in international Morse)
+//   Concat both → paste into https://morsecode.world/international/translator.html
+//   Translator outputs: 1B37  (hexadecimal)
+//   Convert hex→decimal: 0x1B37 = 6967  ← keypad code
 function MorsePanel({ side, uvMode, cursorPos }) {
     const panelRef = useRef(null);
     const [uvReveal, setUvReveal] = useState(0);
 
-    const morseCode = side === 'left' ? '-.... ----.' : '-.... --...';
-    const morseHint = side === 'left' ? 'DIGITS 1-2' : 'DIGITS 3-4';
+    // Correct Morse for 1B37:
+    //   1 = .----  B = -...  →  left segment
+    //   3 = ...--  7 = --... →  right segment
+    const morseCode = side === 'left' ? '.---- -...' : '...-- --...';
+    const morseHint = side === 'left' ? 'SEGMENT 1-2' : 'SEGMENT 3-4';
+    // data-morse attribute is readable via DevTools as an extra hint
+    // INCURSION :: Morse on this surface. Decode at: https://morsecode.world/international/translator.html
 
     useEffect(() => {
         if (!uvMode || !panelRef.current) {
@@ -37,9 +49,9 @@ function MorsePanel({ side, uvMode, cursorPos }) {
         const dist = Math.sqrt(
             Math.pow(cursorPos.x - panelCx, 2) + Math.pow(cursorPos.y - panelCy, 2)
         );
-        // Reveal within 220px
-        const reveal = Math.max(0, 1 - dist / 220);
-        setUvReveal(reveal);
+        // Realistic torch cone: full reveal within 160px, soft falloff to 300px
+        const reveal = Math.max(0, 1 - dist / 300) * (dist < 160 ? 1 : 1 - (dist - 160) / 140);
+        setUvReveal(Math.max(0, Math.min(1, reveal)));
     }, [uvMode, cursorPos]);
 
     return (
@@ -48,29 +60,36 @@ function MorsePanel({ side, uvMode, cursorPos }) {
             className={`morse-panel morse-panel-${side}`}
             data-morse={morseCode}
             data-hint={morseHint}
-        /* INCURSION :: Morse on this surface. Decode at: https://decode.incursion-aegis.net */
+            data-decode="https://morsecode.world/international/translator.html"
         >
-            {/* Alien scratch texture base markings — always faint */}
+            {/* Alien scratch texture base — always faint, organic-looking */}
             <div className="morse-scratch-bg" />
 
-            {/* Morse text — revealed by UV proximity */}
+            {/* Morse text — revealed progressively by UV proximity */}
             <div
                 className="morse-text-wrapper"
                 style={{ '--uv-reveal': uvReveal }}
             >
                 <div className="morse-side-label">{morseHint}</div>
-                <div className="morse-text" aria-hidden="true">{morseCode}</div>
+
+                {/* Organic glyph row — dots and dashes styled as alien engravings */}
                 <div className="morse-glyph-row">
-                    {morseCode.split('').map((char, i) => (
-                        <span key={i} className={`morse-glyph ${char === '-' ? 'morse-dash' : char === '.' ? 'morse-dot' : 'morse-space'}`}>
-                            {char === ' ' ? '\u00A0' : char}
-                        </span>
-                    ))}
+                    {morseCode.split('').map((char, i) => {
+                        if (char === '.') return <span key={i} className="morse-glyph morse-dot" aria-hidden="true" />;
+                        if (char === '-') return <span key={i} className="morse-glyph morse-dash" aria-hidden="true" />;
+                        return <span key={i} className="morse-glyph morse-space" aria-hidden="true" />;
+                    })}
                 </div>
+
+                {/* Raw text form — screen-reader hidden, useful via DevTools */}
+                <div className="morse-text" aria-hidden="true" style={{ display: 'none' }}>{morseCode}</div>
             </div>
 
-            {/* UV reactive scratch marks */}
-            <div className="morse-scratches" style={{ opacity: uvReveal * 0.6 }} />
+            {/* UV reactive scratch marks — secondary alien texture layer */}
+            <div className="morse-scratches" style={{ opacity: uvReveal * 0.7 }} />
+
+            {/* UV proximity glow halo around panel */}
+            <div className="morse-uv-halo" style={{ opacity: uvReveal * 0.5 }} />
         </div>
     );
 }

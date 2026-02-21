@@ -1550,43 +1550,50 @@
 
 /* ═══════════════════════════════════════════════════════════════════════════
    MORSE CODE PANELS
+   Puzzle: UV reveals Morse on walls → paste to morsecode.world → "1B37" → 0x1B37 = 6967
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .morse-panel {
     position: absolute;
-    top: 30%;
-    width: 85%;
-    height: 40%;
+    top: 28%;
+    width: 90%;
+    height: 45%;
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 16;
-    /* devtools-discoverable via data-morse attribute */
+    /* devtools-discoverable via data-morse and data-decode attributes */
 }
 
 .morse-panel-left {
-    left: 5%;
+    left: 3%;
 }
 
 .morse-panel-right {
-    right: 5%;
+    right: 3%;
 }
 
-/* Alien scratch texture background — always subtly visible */
+/* Alien scratch texture background — diagonal cross-hatching, mimics carved metal */
 .morse-scratch-bg {
     position: absolute;
     inset: 0;
     background:
         repeating-linear-gradient(17deg,
             transparent,
-            transparent 8px,
-            rgba(100, 80, 160, 0.025) 8px,
-            rgba(100, 80, 160, 0.025) 9px),
-        repeating-linear-gradient(-17deg,
+            transparent 10px,
+            rgba(100, 80, 180, 0.022) 10px,
+            rgba(100, 80, 180, 0.022) 11px),
+        repeating-linear-gradient(-23deg,
             transparent,
-            transparent 12px,
-            rgba(80, 60, 140, 0.02) 12px,
-            rgba(80, 60, 140, 0.02) 13px);
+            transparent 14px,
+            rgba(80, 60, 150, 0.016) 14px,
+            rgba(80, 60, 150, 0.016) 15px),
+        /* Faint etch marks — always visible as part of alien surface decoration */
+        repeating-linear-gradient(82deg,
+            transparent,
+            transparent 22px,
+            rgba(120, 90, 200, 0.01) 22px,
+            rgba(120, 90, 200, 0.01) 23px);
     border-radius: 2px;
 }
 
@@ -1594,19 +1601,24 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
-    opacity: calc(var(--uv-reveal, 0) * 0.95);
-    transition: opacity 0.15s ease;
+    gap: 8px;
+    opacity: calc(var(--uv-reveal, 0) * 0.96);
+    /* Smooth UV reveal */
+    transition: opacity 0.1s ease;
+    /* Violet-blue glow when revealed */
+    filter: drop-shadow(0 0 8px rgba(120, 80, 240, calc(var(--uv-reveal, 0) * 0.7)));
 }
 
 .morse-side-label {
     font-family: 'JetBrains Mono', monospace;
     font-size: 6px;
-    letter-spacing: 0.3em;
-    color: rgba(140, 100, 255, 0.7);
+    letter-spacing: 0.35em;
+    color: rgba(160, 120, 255, 0.75);
     text-transform: uppercase;
+    margin-bottom: 2px;
 }
 
+/* Hidden text for DevTools — rendered as display:none but in DOM */
 .morse-text {
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
@@ -1615,40 +1627,86 @@
     text-shadow: 0 0 8px rgba(140, 80, 255, 0.7), 0 0 20px rgba(120, 60, 230, 0.3);
 }
 
+/* Glyph row — dots and dashes rendered as alien-engraving shapes */
 .morse-glyph-row {
     display: flex;
-    gap: 1px;
+    align-items: center;
+    gap: 3px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 140px;
 }
 
+/* Base glyph style — sized via :is() override below */
 .morse-glyph {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 14px;
-    color: rgba(160, 120, 255, 0.9);
-    text-shadow: 0 0 6px rgba(140, 80, 255, 0.8);
+    display: inline-block;
+    flex-shrink: 0;
+    border-radius: 1px;
+    background: rgba(160, 110, 255, 0.9);
+    box-shadow:
+        0 0 4px rgba(140, 80, 255, 0.9),
+        0 0 12px rgba(120, 60, 240, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-.morse-dash {
-    color: rgba(180, 140, 255, 0.9);
-}
-
+/* Dot — small circular engraving */
 .morse-dot {
-    color: rgba(140, 100, 255, 0.9);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(180, 130, 255, 0.95);
+    box-shadow:
+        0 0 5px rgba(160, 100, 255, 0.9),
+        0 0 14px rgba(130, 70, 240, 0.5);
 }
 
+/* Dash — elongated rectangular scratch */
+.morse-dash {
+    width: 18px;
+    height: 4px;
+    border-radius: 2px;
+    /* Slight angle variation for organic look */
+    transform: rotate(-0.5deg);
+}
+
+/* Letter-space gap */
 .morse-space {
-    padding: 0 6px;
+    display: inline-block;
+    width: 10px;
+    height: 4px;
 }
 
+/* Secondary UV-reactive scratch marks overlay */
 .morse-scratches {
     position: absolute;
     inset: 0;
-    background: repeating-linear-gradient(45deg,
+    background:
+        repeating-linear-gradient(38deg,
             transparent,
-            transparent 14px,
-            rgba(140, 100, 255, 0.1) 14px,
-            rgba(140, 100, 255, 0.1) 15px);
+            transparent 16px,
+            rgba(140, 100, 255, 0.12) 16px,
+            rgba(140, 100, 255, 0.12) 17px),
+        repeating-linear-gradient(-52deg,
+            transparent,
+            transparent 20px,
+            rgba(120, 80, 240, 0.09) 20px,
+            rgba(120, 80, 240, 0.09) 21px);
     border-radius: 2px;
     pointer-events: none;
+    mix-blend-mode: screen;
+}
+
+/* Radial violet halo that expands around panel when UV torch is close */
+.morse-uv-halo {
+    position: absolute;
+    inset: -20px;
+    background: radial-gradient(ellipse at center,
+            rgba(120, 60, 220, 0.22) 0%,
+            rgba(100, 40, 180, 0.08) 50%,
+            transparent 75%);
+    border-radius: 4px;
+    pointer-events: none;
+    mix-blend-mode: screen;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -2798,4 +2856,156 @@
     letter-spacing: 0.25em;
     color: rgba(30, 144, 255, 0.35);
     text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UV TORCH CONE + DARKNESS OVERLAY
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Realistic UV torch cone — follows cursor via left/top in inline style */
+.uv-cone {
+    position: fixed;
+    /* Center the cone on the cursor */
+    transform: translate(-50%, -50%);
+    width: 520px;
+    height: 520px;
+    border-radius: 50%;
+    /* Multi-layer radial gradient:
+       - Inner core: bright violet-blue (actual UV light spot)
+       - Mid ring: dim violet (penumbra)
+       - Outer: transparent (darkness takes over) */
+    background: radial-gradient(circle at center,
+            rgba(100, 40, 200, 0.28) 0%,
+            rgba(90, 30, 180, 0.20) 12%,
+            rgba(80, 20, 160, 0.13) 25%,
+            rgba(70, 15, 140, 0.06) 45%,
+            rgba(60, 10, 120, 0.02) 65%,
+            transparent 80%);
+    pointer-events: none;
+    z-index: 18;
+    /* Prevents sharp edge by mixing with darkness overlay underneath */
+    mix-blend-mode: screen;
+}
+
+/* Full-screen dim that UV activates — everything goes darker except the cone */
+.uv-darkness-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 0, 12, 0.72);
+    pointer-events: none;
+    z-index: 17;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   NEURAL OVERRIDE — NEW ELEMENTS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Section divider inside the glass panel */
+.neural-segment-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(30, 144, 255, 0.25), transparent);
+    margin: 8px 0 6px;
+}
+
+/* Phase 1 hint section */
+.neural-clues-phase1 {
+    margin-bottom: 0;
+}
+
+/* Phase 2 wall segment block */
+.neural-segment-block {
+    overflow: hidden;
+}
+
+/* Phase 3 decode chain block */
+.neural-decode-section {
+    overflow: hidden;
+}
+
+/* Dimmed clue lines (revealed in earlier phase) */
+.neural-clue-dim {
+    opacity: 0.3 !important;
+}
+
+/* ── Classified reference link button — morsecode.world ── */
+.neural-decode-relay {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: rgba(30, 144, 255, 0.05);
+    border: 1px solid rgba(30, 144, 255, 0.2);
+    border-radius: 3px;
+}
+
+.neural-relay-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.3em;
+    color: rgba(30, 144, 255, 0.55);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+/* The actual morsecode.world link — styled as a classified terminal reference */
+.neural-relay-link-btn {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 6px 10px;
+    background: rgba(30, 144, 255, 0.06);
+    border: 1px solid rgba(30, 144, 255, 0.28);
+    border-radius: 2px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: background 0.2s, border-color 0.2s;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+}
+
+.neural-relay-link-btn:hover {
+    background: rgba(30, 144, 255, 0.12);
+    border-color: rgba(30, 144, 255, 0.45);
+}
+
+.neural-relay-protocol {
+    color: rgba(30, 144, 255, 0.55);
+}
+
+.neural-relay-domain {
+    color: rgba(30, 200, 255, 0.9);
+    font-weight: 700;
+}
+
+.neural-relay-path {
+    color: rgba(30, 180, 255, 0.65);
+}
+
+.neural-relay-action {
+    margin-left: auto;
+    color: rgba(30, 144, 255, 0.7);
+    font-size: 7px;
+    letter-spacing: 0.2em;
+}
+
+.neural-relay-note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.12em;
+    color: rgba(30, 144, 255, 0.4);
+    line-height: 1.5;
+}
+
+/* ── Wall node morse label (under ENCODED sign) ── */
+.neural-node-morse {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.15em;
+    color: rgba(30, 200, 255, 0.75);
+    text-shadow: 0 0 6px rgba(30, 144, 255, 0.6);
+    margin-top: 3px;
+    text-align: center;
 }
