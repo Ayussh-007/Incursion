@@ -12,11 +12,14 @@ const userSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: false,
+        required: [true, 'Email is required'],
         unique: true,
-        sparse: true,   // allows multiple docs without email but still enforces uniqueness when present
         lowercase: true,
         trim: true
+    },
+    isEmailVerified: {
+        type: Boolean,
+        default: false
     },
     password: {
         type: String,

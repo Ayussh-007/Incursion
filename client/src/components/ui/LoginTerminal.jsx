@@ -21,6 +21,7 @@ function LoginTerminal() {
     const [scanProgress, setScanProgress] = useState(0);
     const [commandHistory, setCommandHistory] = useState([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
+    const [pendingEmail, setPendingEmail] = useState(null);
     const outputRef = useRef(null);
     const inputRef = useRef(null);
 
@@ -104,10 +105,11 @@ function LoginTerminal() {
             case '/help':
                 addLines([
                     { text: 'AVAILABLE COMMANDS:', type: 'dim' },
-                    { text: '  /register <username> <password>  — create new operative account', type: 'normal' },
-                    { text: '  /login    <username> <password>  — authenticate existing account', type: 'normal' },
-                    { text: '  /help                            — show this message', type: 'normal' },
-                    { text: '  /clear                           — clear terminal output', type: 'normal' },
+                    { text: '  /register <user> <email> <pass> <confirm>  — request operative access', type: 'normal' },
+                    { text: '  /verify   <otp_code>                       — verify email with OTP', type: 'normal' },
+                    { text: '  /login    <username> <password>             — authenticate account', type: 'normal' },
+                    { text: '  /help                                      — show this message', type: 'normal' },
+                    { text: '  /clear                                     — clear terminal output', type: 'normal' },
                     { text: '', type: 'normal' },
                 ]);
                 break;
@@ -117,7 +119,11 @@ function LoginTerminal() {
                 break;
 
             case '/register':
-                await handleRegister(parts[1], parts[2]);
+                await handleRegister(parts[1], parts[2], parts[3], parts[4]);
+                break;
+
+            case '/verify':
+                await handleVerifyOtp(parts[1]);
                 break;
 
             case '/login':
@@ -135,10 +141,10 @@ function LoginTerminal() {
 
     // ── /register ─────────────────────────────────────────────────────────────
 
-    const handleRegister = async (username, password) => {
-        if (!username || !password) {
+    const handleRegister = async (username, email, password, confirmPassword) => {
+        if (!username || !email || !password || !confirmPassword) {
             addLines([
-                { text: '✗ USAGE: /register <username> <password>', type: 'error' },
+                { text: '✗ USAGE: /register <username> <email> <password> <confirm_password>', type: 'error' },
                 { text: '', type: 'normal' },
             ]);
             return;
@@ -150,12 +156,74 @@ function LoginTerminal() {
             ]);
             return;
         }
+        if (password !== confirmPassword) {
+            addLines([
+                { text: '✗ PASSWORDS DO NOT MATCH', type: 'error' },
+                { text: '', type: 'normal' },
+            ]);
+            return;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            addLines([
+                { text: '✗ INVALID EMAIL FORMAT', type: 'error' },
+                { text: '', type: 'normal' },
+            ]);
+            return;
+        }
 
         setIsLoading(true);
-        addLines([{ text: 'REGISTERING OPERATIVE...', type: 'processing' }]);
+        addLines([{ text: 'INITIATING REGISTRATION PROTOCOL...', type: 'processing' }]);
 
         try {
-            const { data } = await api.post('/auth/register', { username, password });
+            await api.post('/auth/register', { username, email, password });
+
+            audioManager.playSuccessChime?.();
+            setPendingEmail(email);
+            addLines([
+                { text: `> VERIFICATION CODE TRANSMITTED TO ${email.toUpperCase()}`, type: 'success' },
+                { text: '> OTP VALID FOR 5 MINUTES', type: 'warning' },
+                { text: '', type: 'normal' },
+                { text: '> ENTER:  /verify <otp_code>  TO COMPLETE REGISTRATION', type: 'dim' },
+                { text: '', type: 'normal' },
+            ]);
+        } catch (err) {
+            audioManager.playGlitchBurst?.();
+            const msg = err.response?.data?.error || err.response?.data?.errors?.[0]?.msg || 'REGISTRATION FAILED';
+            addLines([
+                { text: `✗ ${msg.toUpperCase()}`, type: 'error' },
+                { text: '', type: 'normal' },
+            ]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // ── /verify ───────────────────────────────────────────────────────────────
+
+    const handleVerifyOtp = async (otpCode) => {
+        if (!otpCode) {
+            addLines([
+                { text: '✗ USAGE: /verify <otp_code>', type: 'error' },
+                { text: '', type: 'normal' },
+            ]);
+            return;
+        }
+        if (!pendingEmail) {
+            addLines([
+                { text: '✗ NO PENDING REGISTRATION. USE /register FIRST', type: 'error' },
+                { text: '', type: 'normal' },
+            ]);
+            return;
+        }
+
+        setIsLoading(true);
+        addLines([{ text: 'VERIFYING ACCESS CODE...', type: 'processing' }]);
+
+        try {
+            const { data } = await api.post('/auth/verify-otp', {
+                email: pendingEmail,
+                otp: otpCode
+            });
             const lvl = Math.max(1, data.currentLevel ?? 1);
 
             // Persist tokens
@@ -163,8 +231,10 @@ function LoginTerminal() {
             if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
 
             audioManager.playSuccessChime?.();
+            setPendingEmail(null);
             addLines([
-                { text: `> OPERATIVE "${username}" REGISTERED`, type: 'success' },
+                { text: '> IDENTITY CONFIRMED', type: 'success' },
+                { text: `> OPERATIVE "${data.user.username}" ACTIVATED`, type: 'success' },
                 { text: '> CLEARANCE LEVEL: GAMMA-7 GRANTED', type: 'success' },
                 { text: `> ASSIGNING TO LEVEL ${lvl}...`, type: 'success' },
                 { text: '', type: 'normal' },
@@ -173,12 +243,11 @@ function LoginTerminal() {
 
             setTimeout(() => {
                 audioManager.fadeOutAll?.(2);
-                // New registrations always go through cutscene → aegis → char-intro
                 navigate('/mission', { replace: true });
             }, 1800);
         } catch (err) {
             audioManager.playGlitchBurst?.();
-            const msg = err.response?.data?.error || err.response?.data?.errors?.[0]?.msg || 'REGISTRATION FAILED';
+            const msg = err.response?.data?.error || err.response?.data?.errors?.[0]?.msg || 'VERIFICATION FAILED';
             addLines([
                 { text: `✗ ${msg.toUpperCase()}`, type: 'error' },
                 { text: '', type: 'normal' },
@@ -339,7 +408,7 @@ function LoginTerminal() {
 
                 <div className="terminal-footer">
                     <span className="terminal-hint">
-                        /login &lt;username&gt; &lt;password&gt; &nbsp;•&nbsp; /register &lt;username&gt; &lt;password&gt; &nbsp;•&nbsp; /help
+                        /register &lt;user&gt; &lt;email&gt; &lt;pass&gt; &lt;confirm&gt; &nbsp;•&nbsp; /verify &lt;otp&gt; &nbsp;•&nbsp; /login &lt;user&gt; &lt;pass&gt; &nbsp;•&nbsp; /help
                     </span>
                 </div>
             </div>
