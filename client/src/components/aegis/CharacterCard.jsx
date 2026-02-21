@@ -157,6 +157,11 @@ function CharacterCard({ character, isSelected, isLocked, onSelect }) {
                     {character.codename}
                 </div>
 
+                {/* Name */}
+                <div className="card-name" style={{ color: character.avatarAccent }}>
+                    {character.name}
+                </div>
+
                 {/* Title */}
                 <div className="card-title">{character.title}</div>
 

@@ -71,9 +71,10 @@ function AbilityHUD({ onActivate }) {
                         exit={{ opacity: 0, x: 10 }}
                         transition={{ duration: 0.25 }}
                     >
-                        {character.codename}
+                        {character.name}
                     </motion.div>
                 </AnimatePresence>
+                <div className="hud-division" style={{ color: character.avatarAccent, opacity: 0.6 }}>{character.codename}</div>
                 <div className="hud-division">{character.division}</div>
             </div>
 

@@ -421,6 +421,14 @@
     letter-spacing: 2px;
 }
 
+.card-name {
+    font-size: 17px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    line-height: 1.1;
+    text-shadow: 0 0 12px currentColor;
+}
+
 .card-title {
     font-size: 10px;
     color: rgba(255, 255, 255, 0.7);
