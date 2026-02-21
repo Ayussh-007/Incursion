@@ -4,6 +4,7 @@
  * Features: 3-min countdown timer, UV scanner (L), Neural Override (E), Failure screen
  */
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import useGameStore from '../store/gameState';
 import ActIntro from '../components/level1/ActIntro';
@@ -245,8 +246,9 @@ function CorridorEnvironment({ flickering, failure, uvMode, cursorPos }) {
 }
 
 // ── Main Scene ────────────────────────────────────────────────────────────────
-function Level1Scene() {
+export default function Level1Scene() {
     const completeLevel = useGameStore((s) => s.completeLevel);
+    const navigate = useNavigate();
 
     // Phase state machine
     const [phase, setPhase] = useState('ACT_INTRO');
@@ -359,7 +361,11 @@ function Level1Scene() {
 
     const handleUnlockDone = useCallback(() => setPhase('SUCCESS'), []);
 
-    const handleSuccessDone = useCallback(() => completeLevel(), [completeLevel]);
+    const handleSuccessDone = useCallback(async () => {
+        await completeLevel();
+        // Go to /mission — MissionPage will detect pendingUnlock and show CHAR_INTRO
+        navigate('/mission', { replace: true });
+    }, [completeLevel, navigate]);
 
     const handleFlicker = useCallback(() => {
         setFlickering(true);
