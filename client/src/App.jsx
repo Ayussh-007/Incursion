@@ -1,17 +1,13 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
-import useGameStore from './store/gameState';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import './styles/index.css';
 
-// Lazy load heavy scenes
-const SpaceScene = lazy(() => import('./scenes/SpaceScene'));
-const TransitionSequence = lazy(() => import('./components/ui/TransitionSequence'));
-const LoginTerminal = lazy(() => import('./components/ui/LoginTerminal'));
-const CutsceneSequence = lazy(() => import('./components/ui/CutsceneSequence'));
-const AegisScene = lazy(() => import('./scenes/AegisScene'));
-const CharacterIntroPage = lazy(() => import('./scenes/CharacterIntroPage'));
-const Level1Scene = lazy(() => import('./scenes/Level1Scene'));
+// Pages
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const TerminalPage = lazy(() => import('./pages/TerminalPage'));
+const MissionPage = lazy(() => import('./pages/MissionPage'));
+const LevelPage = lazy(() => import('./pages/LevelPage'));
 
-// Loading screen component
 function LoadingScreen({ text = 'INITIALIZING...' }) {
   return (
     <div className="loading-screen">
@@ -24,67 +20,32 @@ function LoadingScreen({ text = 'INITIALIZING...' }) {
 }
 
 function App() {
-  const currentScene = useGameStore((state) => state.currentScene);
   const [initialFade, setInitialFade] = useState(1);
 
   // Fade from complete black on initial load
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setInitialFade(0);
-    }, 300);
+    const timer = setTimeout(() => setInitialFade(0), 300);
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <div className="app">
-      {/* INTRO: Deep space scene */}
-      {currentScene === 'INTRO' && (
-        <Suspense fallback={<LoadingScreen text="INITIALIZING INCURSION..." />}>
-          <SpaceScene />
-        </Suspense>
-      )}
+      <Suspense fallback={<LoadingScreen />}>
+        <Routes>
+          {/* ── Public ─────────────────────────────────────────── */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/terminal" element={<TerminalPage />} />
 
-      {/* TRANSITION: Atmospheric dive sequence */}
-      {currentScene === 'TRANSITION' && (
-        <Suspense fallback={<LoadingScreen text="ATMOSPHERIC ENTRY DETECTED..." />}>
-          <TransitionSequence />
-        </Suspense>
-      )}
+          {/* ── Pre-level mission flow (cutscene → aegis → char-intro) ── */}
+          <Route path="/mission" element={<MissionPage />} />
 
-      {/* LOGIN: Classified terminal */}
-      {currentScene === 'LOGIN' && (
-        <Suspense fallback={<LoadingScreen text="BOOTING SECURE TERMINAL..." />}>
-          <LoginTerminal />
-        </Suspense>
-      )}
+          {/* ── Protected level routes ──────────────────────────── */}
+          <Route path="/level/:levelId" element={<LevelPage />} />
 
-      {/* CUTSCENE: Post-login signal transmission */}
-      {currentScene === 'CUTSCENE' && (
-        <Suspense fallback={<LoadingScreen text="ESTABLISHING DEEP SPACE LINK..." />}>
-          <CutsceneSequence />
-        </Suspense>
-      )}
-
-      {/* AEGIS: Operative selection */}
-      {currentScene === 'AEGIS' && (
-        <Suspense fallback={<LoadingScreen text="INITIALIZING OPERATIVE SELECTION..." />}>
-          <AegisScene />
-        </Suspense>
-      )}
-
-      {/* CHAR_INTRO: Character introduction briefing */}
-      {currentScene === 'CHAR_INTRO' && (
-        <Suspense fallback={<LoadingScreen text="LOADING OPERATIVE BRIEFING..." />}>
-          <CharacterIntroPage />
-        </Suspense>
-      )}
-
-      {/* GAME: Level 1 – Breach Protocol */}
-      {currentScene === 'GAME' && (
-        <Suspense fallback={<LoadingScreen text="LOADING BREACH PROTOCOL..." />}>
-          <Level1Scene />
-        </Suspense>
-      )}
+          {/* ── Catch-all ───────────────────────────────────────── */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
 
       {/* Global fade-from-black overlay */}
       <div

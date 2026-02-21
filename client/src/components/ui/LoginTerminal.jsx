@@ -1,31 +1,38 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useGameStore from '../../store/gameState';
 import audioManager from '../../utils/AudioManager';
+import api from '../../services/api';
 import '../../styles/LoginTerminal.css';
 
 /**
- * LoginTerminal - High-tech classified system dashboard
- * Features: crimson accents, holographic layers, scanning sweeps, boot sequence
+ * LoginTerminal — SERN Classified Terminal
+ * Command-style input interface:
+ *   /register <username> <password>   — create account, auto-login
+ *   /login    <username> <password>   — authenticate, redirect to level
+ *   /help                             — show available commands
+ *   /clear                            — clear terminal output
  */
 function LoginTerminal() {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    const [input, setInput] = useState('');
     const [output, setOutput] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [currentPrompt, setCurrentPrompt] = useState(null); // null during boot
     const [bootComplete, setBootComplete] = useState(false);
     const [scanProgress, setScanProgress] = useState(0);
+    const [commandHistory, setCommandHistory] = useState([]);
+    const [historyIndex, setHistoryIndex] = useState(-1);
     const outputRef = useRef(null);
     const inputRef = useRef(null);
 
-    const { setScene, login } = useGameStore();
+    const navigate = useNavigate();
 
-    // Boot sequence with typing effect
+    // ── Boot Sequence ─────────────────────────────────────────────────────────
+
     useEffect(() => {
         const bootLines = [
             { text: '████████████████████████████████████████', delay: 0, type: 'dim' },
             { text: 'SERN CLASSIFIED TERMINAL v3.17.42', delay: 200 },
-            { text: 'BUILD: 2026.02.18-AEGIS', delay: 350, type: 'dim' },
+            { text: 'BUILD: 2026.02.21-AEGIS', delay: 350, type: 'dim' },
             { text: '', delay: 450 },
             { text: 'ESTABLISHING QUANTUM-ENCRYPTED CHANNEL...', delay: 550 },
             { text: '> HANDSHAKE COMPLETE', delay: 900, type: 'success' },
@@ -34,41 +41,38 @@ function LoginTerminal() {
             { text: '', delay: 1500 },
             { text: '╔══════════════════════════════════════╗', delay: 1600 },
             { text: '║    PROJECT AEGIS — GAMMA-7 ACCESS    ║', delay: 1700 },
-            { text: '║    AUTHORIZATION REQUIRED             ║', delay: 1800 },
+            { text: '║    COMMAND INTERFACE READY            ║', delay: 1800 },
             { text: '╚══════════════════════════════════════╝', delay: 1900 },
             { text: '', delay: 2000 },
+            { text: '> TYPE /help TO LIST COMMANDS', delay: 2100, type: 'dim' },
+            { text: '', delay: 2200 },
         ];
 
-        // Reset output on mount (prevents StrictMode double-render)
         setOutput([]);
+        const timers = [];
 
-        const bootTimers = [];
         bootLines.forEach(({ text, delay, type }) => {
             const t = setTimeout(() => {
                 setOutput(prev => [...prev, { text, type: type || 'normal' }]);
-                if (text.trim()) audioManager.playBootBeep(); // Audio beep
+                if (text.trim()) audioManager.playBootBeep?.();
             }, delay);
-            bootTimers.push(t);
+            timers.push(t);
         });
 
-        // After boot, show prompt
         const bootDone = setTimeout(() => {
             setBootComplete(true);
-            setCurrentPrompt('username');
             if (inputRef.current) inputRef.current.focus();
-        }, 2200);
-        bootTimers.push(bootDone);
+        }, 2400);
+        timers.push(bootDone);
 
-        // Resume static noise
-        audioManager.startStaticNoise();
+        audioManager.startStaticNoise?.();
 
-        // Scanning sweep animation
         const scanInterval = setInterval(() => {
             setScanProgress(p => (p + 0.5) % 100);
         }, 30);
 
         return () => {
-            bootTimers.forEach(clearTimeout);
+            timers.forEach(clearTimeout);
             clearInterval(scanInterval);
         };
     }, []);
@@ -80,92 +84,200 @@ function LoginTerminal() {
         }
     }, [output]);
 
+    // ── Command Parser ────────────────────────────────────────────────────────
+
+    const addLines = (lines) => {
+        setOutput(prev => [...prev, ...lines]);
+    };
+
+    const parseAndExecute = async (raw) => {
+        const trimmed = raw.trim();
+        if (!trimmed) return;
+
+        // Echo the command
+        addLines([{ text: `> ${trimmed}`, type: 'input' }, { text: '', type: 'normal' }]);
+
+        const parts = trimmed.split(/\s+/);
+        const cmd = parts[0].toLowerCase();
+
+        switch (cmd) {
+            case '/help':
+                addLines([
+                    { text: 'AVAILABLE COMMANDS:', type: 'dim' },
+                    { text: '  /register <username> <password>  — create new operative account', type: 'normal' },
+                    { text: '  /login    <username> <password>  — authenticate existing account', type: 'normal' },
+                    { text: '  /help                            — show this message', type: 'normal' },
+                    { text: '  /clear                           — clear terminal output', type: 'normal' },
+                    { text: '', type: 'normal' },
+                ]);
+                break;
+
+            case '/clear':
+                setOutput([]);
+                break;
+
+            case '/register':
+                await handleRegister(parts[1], parts[2]);
+                break;
+
+            case '/login':
+                await handleLogin(parts[1], parts[2]);
+                break;
+
+            default:
+                addLines([
+                    { text: `✗ UNKNOWN COMMAND: ${parts[0]}`, type: 'error' },
+                    { text: '  TYPE /help FOR AVAILABLE COMMANDS', type: 'dim' },
+                    { text: '', type: 'normal' },
+                ]);
+        }
+    };
+
+    // ── /register ─────────────────────────────────────────────────────────────
+
+    const handleRegister = async (username, password) => {
+        if (!username || !password) {
+            addLines([
+                { text: '✗ USAGE: /register <username> <password>', type: 'error' },
+                { text: '', type: 'normal' },
+            ]);
+            return;
+        }
+        if (password.length < 6) {
+            addLines([
+                { text: '✗ PASSWORD MUST BE AT LEAST 6 CHARACTERS', type: 'error' },
+                { text: '', type: 'normal' },
+            ]);
+            return;
+        }
+
+        setIsLoading(true);
+        addLines([{ text: 'REGISTERING OPERATIVE...', type: 'processing' }]);
+
+        try {
+            const { data } = await api.post('/auth/register', { username, password });
+            const lvl = Math.max(1, data.currentLevel ?? 1);
+
+            // Persist tokens
+            localStorage.setItem('accessToken', data.accessToken);
+            if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
+
+            audioManager.playSuccessChime?.();
+            addLines([
+                { text: `> OPERATIVE "${username}" REGISTERED`, type: 'success' },
+                { text: '> CLEARANCE LEVEL: GAMMA-7 GRANTED', type: 'success' },
+                { text: `> ASSIGNING TO LEVEL ${lvl}...`, type: 'success' },
+                { text: '', type: 'normal' },
+                { text: 'LOADING MISSION BRIEFING...', type: 'processing' },
+            ]);
+
+            setTimeout(() => {
+                audioManager.fadeOutAll?.(2);
+                // New registrations always go through cutscene → aegis → char-intro
+                navigate('/mission', { replace: true });
+            }, 1800);
+        } catch (err) {
+            audioManager.playGlitchBurst?.();
+            const msg = err.response?.data?.error || err.response?.data?.errors?.[0]?.msg || 'REGISTRATION FAILED';
+            addLines([
+                { text: `✗ ${msg.toUpperCase()}`, type: 'error' },
+                { text: '', type: 'normal' },
+            ]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // ── /login ────────────────────────────────────────────────────────────────
+
+    const handleLogin = async (username, password) => {
+        if (!username || !password) {
+            addLines([
+                { text: '✗ USAGE: /login <username> <password>', type: 'error' },
+                { text: '', type: 'normal' },
+            ]);
+            return;
+        }
+
+        setIsLoading(true);
+        addLines([{ text: 'AUTHENTICATING...', type: 'processing' }]);
+
+        try {
+            const { data } = await api.post('/auth/login', { username, password });
+            // hasCompletedIntro tells us if the user already went through the mission flow
+            const introComplete = data.hasCompletedIntro === true;
+            const lvl = Math.max(1, data.currentLevel ?? 1);
+
+            // Persist tokens
+            localStorage.setItem('accessToken', data.accessToken);
+            if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
+            audioManager.playSuccessChime?.();
+            addLines([
+                { text: '> CREDENTIALS VERIFIED', type: 'success' },
+                { text: `> WELCOME BACK, OPERATIVE ${username.toUpperCase()}`, type: 'success' },
+                { text: introComplete ? `> RESUMING FROM LEVEL ${lvl}` : '> INITIATING MISSION BRIEFING...', type: 'success' },
+                { text: '', type: 'normal' },
+                { text: 'ESTABLISHING DEEP SPACE UPLINK...', type: 'processing' },
+            ]);
+
+            setTimeout(() => {
+                audioManager.fadeOutAll?.(2);
+                // Returning users skip to their level; first-timers go through mission flow
+                navigate(introComplete ? `/level/${lvl}` : '/mission', { replace: true });
+            }, 1800);
+        } catch (err) {
+            audioManager.playGlitchBurst?.();
+            const msg = err.response?.data?.error || err.response?.data?.errors?.[0]?.msg || 'AUTHENTICATION FAILED';
+            addLines([
+                { text: `✗ ${msg.toUpperCase()}`, type: 'error' },
+                { text: '✗ SECURITY VIOLATION — INCIDENT LOGGED', type: 'error' },
+                { text: '', type: 'normal' },
+            ]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // ── Input Handlers ────────────────────────────────────────────────────────
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!bootComplete || isLoading) return;
+        const value = input.trim();
+        if (!value) return;
 
-        if (currentPrompt === 'username') {
-            if (username.trim()) {
-                setOutput(prev => [...prev,
-                { text: `OPERATOR: ${username}`, type: 'input' },
-                { text: '', type: 'normal' }
-                ]);
-                audioManager.playImpact(); // Confirm sound
-                setCurrentPrompt('password');
-                setPassword('');
-                setTimeout(() => { if (inputRef.current) inputRef.current.focus(); }, 50);
-            }
-        } else if (currentPrompt === 'password') {
-            setOutput(prev => [...prev,
-            { text: `PASSKEY: ${'●'.repeat(password.length)}`, type: 'input' },
-            { text: '', type: 'normal' },
-            { text: 'AUTHENTICATING...', type: 'processing' }
-            ]);
-            audioManager.playImpact();
+        // Update command history
+        setCommandHistory(prev => [value, ...prev.filter(c => c !== value)].slice(0, 50));
+        setHistoryIndex(-1);
+        setInput('');
 
-            setIsLoading(true);
-            setCurrentPrompt(null);
+        await parseAndExecute(value);
+    };
 
-            setTimeout(async () => {
-                try {
-                    await login(username, password);
-                    showSuccess();
-                } catch (error) {
-                    // Strict security: No demo fallback
-                    console.error('Login failed:', error);
-                    showError();
-                }
-            }, 1800);
+    const handleKeyDown = (e) => {
+        if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setHistoryIndex(prev => {
+                const next = Math.min(prev + 1, commandHistory.length - 1);
+                setInput(commandHistory[next] || '');
+                return next;
+            });
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setHistoryIndex(prev => {
+                const next = Math.max(prev - 1, -1);
+                setInput(next === -1 ? '' : commandHistory[next]);
+                return next;
+            });
         }
     };
 
-    const showSuccess = () => {
-        audioManager.playSuccessChime(); // Success audio
-
-        const successLines = [
-            { text: '> CREDENTIALS VERIFIED', type: 'success', delay: 0 },
-            { text: '> ACCESS LEVEL: GAMMA-7 — GRANTED', type: 'success', delay: 200 },
-            { text: '> OPERATOR REGISTERED IN AEGIS DATABASE', type: 'success', delay: 400 },
-            { text: '', type: 'normal', delay: 600 },
-            { text: 'LOADING CLASSIFIED BRIEFING...', type: 'processing', delay: 800 },
-            { text: '> ESTABLISHING DEEP SPACE UPLINK...', type: 'success', delay: 1200 },
-        ];
-
-        successLines.forEach(({ text, type, delay }) => {
-            setTimeout(() => {
-                setOutput(prev => [...prev, { text, type }]);
-                audioManager.playBootBeep();
-            }, delay);
-        });
-
-        setTimeout(() => {
-            audioManager.fadeOutAll(2);
-            setScene('CUTSCENE');
-        }, 2500);
+    const handleChange = (e) => {
+        audioManager.playKeystroke?.();
+        setInput(e.target.value);
     };
 
-    const showError = () => {
-        audioManager.playGlitchBurst(); // Error glitch sound
-
-        setOutput(prev => [...prev,
-        { text: '✗ AUTHENTICATION FAILED', type: 'error' },
-        { text: '✗ SECURITY VIOLATION — INCIDENT LOGGED', type: 'error' },
-        { text: '', type: 'normal' }
-        ]);
-        setIsLoading(false);
-        setUsername('');
-        setPassword('');
-        setCurrentPrompt('username');
-        setTimeout(() => { if (inputRef.current) inputRef.current.focus(); }, 100);
-    };
-
-    const handleInput = (e) => {
-        audioManager.playKeystroke(); // Typing sound
-        if (currentPrompt === 'username') {
-            setUsername(e.target.value);
-        } else {
-            setPassword(e.target.value);
-        }
-    };
+    // ── Render ────────────────────────────────────────────────────────────────
 
     return (
         <div className="login-terminal">
@@ -192,29 +304,33 @@ function LoginTerminal() {
                 </div>
 
                 <div className="terminal-output" ref={outputRef}>
-                    {output.map((line, index) => (
-                        <div key={index} className={`terminal-line ${line.type}`}>
+                    {output.map((line, i) => (
+                        <div key={i} className={`terminal-line ${line.type}`}>
                             {line.text}
                         </div>
                     ))}
+
+                    {/* Typing spinner when loading */}
+                    {isLoading && (
+                        <div className="terminal-line processing">▌</div>
+                    )}
                 </div>
 
-                {currentPrompt && bootComplete && (
+                {bootComplete && !isLoading && (
                     <form onSubmit={handleSubmit} className="terminal-input-form">
                         <div className="terminal-prompt-line">
-                            <span className="terminal-prompt">
-                                {currentPrompt === 'username' ? 'OPERATOR >' : 'PASSKEY >'}
-                            </span>
+                            <span className="terminal-prompt">GAMMA-7 &gt;</span>
                             <input
                                 ref={inputRef}
-                                type={currentPrompt === 'password' ? 'password' : 'text'}
-                                value={currentPrompt === 'username' ? username : password}
-                                onChange={handleInput}
-                                disabled={isLoading}
+                                type="text"
+                                value={input}
+                                onChange={handleChange}
+                                onKeyDown={handleKeyDown}
                                 className="terminal-input"
                                 autoComplete="off"
                                 spellCheck="false"
                                 autoFocus
+                                placeholder="/login or /register"
                             />
                             <span className="terminal-cursor" />
                         </div>
@@ -223,7 +339,7 @@ function LoginTerminal() {
 
                 <div className="terminal-footer">
                     <span className="terminal-hint">
-                        Any credentials accepted (password 4+ chars) • Demo Mode
+                        /login &lt;username&gt; &lt;password&gt; &nbsp;•&nbsp; /register &lt;username&gt; &lt;password&gt; &nbsp;•&nbsp; /help
                     </span>
                 </div>
             </div>

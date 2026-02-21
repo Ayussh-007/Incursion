@@ -3,7 +3,8 @@ import { validationResult } from 'express-validator';
 import User from '../models/User.js';
 import GameProgress from '../models/GameProgress.js';
 
-// Generate JWT tokens
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
 const generateTokens = (userId) => {
     const accessToken = jwt.sign(
         { userId },
@@ -20,6 +21,21 @@ const generateTokens = (userId) => {
     return { accessToken, refreshToken };
 };
 
+/** Fetch (or lazily create) the GameProgress doc for a user and return key fields. */
+async function getOrCreateProgress(userId) {
+    let progress = await GameProgress.findOne({ user: userId });
+    if (!progress) {
+        progress = new GameProgress({ user: userId, currentLevel: 1 });
+        await progress.save();
+    }
+    return {
+        currentLevel: Math.max(1, progress.currentLevel),
+        hasCompletedIntro: progress.hasCompletedIntro ?? false
+    };
+}
+
+// ── Controllers ───────────────────────────────────────────────────────────────
+
 // @desc    Register new user
 // @route   POST /api/auth/register
 // @access  Public
@@ -30,57 +46,45 @@ export const register = async (req, res) => {
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { username, email, password } = req.body;
+        const { username, password } = req.body;
+
+        // Auto-generate a placeholder email so the unique index is satisfied
+        // without requiring the terminal user to supply one.
+        const email = `${username.toLowerCase()}@incursion.local`;
 
         // Check if user exists
-        const existingUser = await User.findOne({
-            $or: [{ email }, { username }]
-        });
-
+        const existingUser = await User.findOne({ $or: [{ email }, { username }] });
         if (existingUser) {
             return res.status(400).json({
-                error: existingUser.email === email
-                    ? 'Email already registered'
-                    : 'Username already taken'
+                error: existingUser.username === username
+                    ? 'Username already taken'
+                    : 'User already exists'
             });
         }
 
         // Create user
-        const user = new User({
-            username,
-            email,
-            password
-        });
-
+        const user = new User({ username, email, password });
         await user.save();
 
-        // Create game progress
-        const gameProgress = new GameProgress({
-            user: user._id
-        });
-
+        // Create game progress (starting at level 1)
+        const gameProgress = new GameProgress({ user: user._id, currentLevel: 1 });
         await gameProgress.save();
 
-        // Link game progress to user
+        // Link progress to user
         user.gameProgress = gameProgress._id;
         await user.save();
 
         // Generate tokens
         const { accessToken, refreshToken } = generateTokens(user._id);
-
-        // Save refresh token
         user.refreshToken = refreshToken;
         await user.save();
 
         res.status(201).json({
             message: 'User registered successfully',
-            user: {
-                id: user._id,
-                username: user.username,
-                email: user.email
-            },
+            user: { id: user._id, username: user.username },
             accessToken,
-            refreshToken
+            refreshToken,
+            currentLevel: 1
         });
     } catch (error) {
         console.error('Register error:', error);
@@ -98,53 +102,54 @@ export const login = async (req, res) => {
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { email, username, password } = req.body;
+        const { username, password } = req.body;
 
-        // Find user by email or username
-        const query = { $or: [] };
-        if (email) query.$or.push({ email });
-        if (username) query.$or.push({ username });
-
-        const user = await User.findOne(query);
-
+        const user = await User.findOne({ username });
         if (!user) {
-            return res.status(401).json({
-                error: 'Invalid credentials'
-            });
+            return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        // Check password
         const isMatch = await user.comparePassword(password);
-
         if (!isMatch) {
-            return res.status(401).json({
-                error: 'Invalid credentials'
-            });
+            return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        // Update last login
         user.lastLogin = new Date();
 
-        // Generate tokens
         const { accessToken, refreshToken } = generateTokens(user._id);
-
-        // Save refresh token
         user.refreshToken = refreshToken;
         await user.save();
 
+        const progress = await getOrCreateProgress(user._id);
+
         res.json({
             message: 'Login successful',
-            user: {
-                id: user._id,
-                username: user.username,
-                email: user.email
-            },
+            user: { id: user._id, username: user.username },
             accessToken,
-            refreshToken
+            refreshToken,
+            currentLevel: progress.currentLevel,
+            hasCompletedIntro: progress.hasCompletedIntro
         });
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ error: 'Server error during login' });
+    }
+};
+
+// @desc    Get current authenticated user + progress
+// @route   GET /api/auth/me
+// @access  Private
+export const getMe = async (req, res) => {
+    try {
+        const progress = await getOrCreateProgress(req.user._id);
+        res.json({
+            user: { id: req.user._id, username: req.user.username },
+            currentLevel: progress.currentLevel,
+            hasCompletedIntro: progress.hasCompletedIntro
+        });
+    } catch (error) {
+        console.error('GetMe error:', error);
+        res.status(500).json({ error: 'Server error fetching user data' });
     }
 };
 
@@ -156,30 +161,17 @@ export const refresh = async (req, res) => {
         const { refreshToken } = req.body;
 
         if (!refreshToken) {
-            return res.status(401).json({
-                error: 'Refresh token required'
-            });
+            return res.status(401).json({ error: 'Refresh token required' });
         }
 
-        // Verify refresh token
         const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-
-        // Find user with this refresh token
-        const user = await User.findOne({
-            _id: decoded.userId,
-            refreshToken
-        });
+        const user = await User.findOne({ _id: decoded.userId, refreshToken });
 
         if (!user) {
-            return res.status(401).json({
-                error: 'Invalid refresh token'
-            });
+            return res.status(401).json({ error: 'Invalid refresh token' });
         }
 
-        // Generate new tokens
         const tokens = generateTokens(user._id);
-
-        // Update refresh token
         user.refreshToken = tokens.refreshToken;
         await user.save();
 
@@ -199,12 +191,10 @@ export const refresh = async (req, res) => {
 export const logout = async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
-
         if (user) {
             user.refreshToken = null;
             await user.save();
         }
-
         res.json({ message: 'Logout successful' });
     } catch (error) {
         console.error('Logout error:', error);

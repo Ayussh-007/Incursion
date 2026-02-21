@@ -2,14 +2,17 @@ import { create } from 'zustand';
 import api from '../services/api';
 
 const useGameStore = create((set, get) => ({
-    // Scene state
-    currentScene: 'INTRO', // 'INTRO' | 'TRANSITION' | 'LOGIN' | 'CUTSCENE' | 'AEGIS' | 'CHAR_INTRO' | 'GAME'
+    // Scene state — governs sub-phases WITHIN the MissionPage route
+    // CUTSCENE → completeCutscene() → AEGIS → completeAegis() → CHAR_INTRO → completeCharIntro() → GAME
+    // When currentScene === 'GAME', MissionPage navigates to /level/{n}
+    currentScene: 'INTRO',
     transitionProgress: 0,
     sceneReady: false,
 
-    // User state
+    // User state (synced with backend after login)
     isAuthenticated: false,
     user: null,
+    currentLevelDB: 1,   // authoritative level from MongoDB
     gameProgress: null,
 
     // Audio state
@@ -18,24 +21,23 @@ const useGameStore = create((set, get) => ({
     audioVolume: 0.7,
 
     // UI state
-    fadeOverlay: 1, // 1 = fully black, 0 = transparent
+    fadeOverlay: 1,
     titleFractured: false,
 
     // ── AEGIS Operative Selection State ──────────────────────────────────────
-    selectedCharacter: 0,          // 0–4 index into CHARACTERS array
-    abilityActive: false,          // true while ability effect is playing
-    abilityCooldownProgress: 1.0,  // 1.0 = ready, 0.0 = on cooldown
-    aegisPhase: 'MAP_INTRO',       // 'MAP_INTRO' | 'CARDS_RISE' | 'READY'
-    _cooldownTimer: null,          // internal ref for cleanup
+    selectedCharacter: 0,
+    abilityActive: false,
+    abilityCooldownProgress: 1.0,
+    aegisPhase: 'MAP_INTRO',
+    _cooldownTimer: null,
 
     // ── Character Unlock & Progression State ─────────────────────────────────
-    unlockedCharacters: [0],       // indices of unlocked characters (Strategist always unlocked)
-    currentLevel: 0,               // levels cleared
-    pendingUnlock: null,           // index of character just unlocked (null = none pending)
-    introCharacterIndex: 0,        // which character's intro page to show
-    hasSeenIntro: false,           // true after first CHAR_INTRO has been seen
+    unlockedCharacters: [0],
+    pendingUnlock: null,
+    introCharacterIndex: 0,
+    hasSeenIntro: false,
 
-    // Actions
+    // ── Basic Scene Actions ───────────────────────────────────────────────────
     setScene: (scene) => set({ currentScene: scene }),
     setTransitionProgress: (progress) => set({ transitionProgress: Math.min(1, Math.max(0, progress)) }),
     setSceneReady: (ready) => set({ sceneReady: ready }),
@@ -45,11 +47,11 @@ const useGameStore = create((set, get) => ({
     setAudioMuted: (muted) => set({ audioMuted: muted }),
     setAudioVolume: (volume) => set({ audioVolume: volume }),
 
-    // AEGIS actions
+    // ── AEGIS actions ─────────────────────────────────────────────────────────
     setSelectedCharacter: (index) => {
         const { abilityActive, unlockedCharacters } = get();
-        if (abilityActive) return; // don't switch mid-ability
-        if (!unlockedCharacters.includes(index)) return; // locked character
+        if (abilityActive) return;
+        if (!unlockedCharacters.includes(index)) return;
         set({ selectedCharacter: index, abilityCooldownProgress: 1.0 });
     },
 
@@ -57,19 +59,12 @@ const useGameStore = create((set, get) => ({
 
     activateAbility: (cooldownSeconds) => {
         const { abilityActive, abilityCooldownProgress, _cooldownTimer } = get();
-        if (abilityActive || abilityCooldownProgress < 1.0) return; // on cooldown or already active
-
-        // Clear any existing timer
+        if (abilityActive || abilityCooldownProgress < 1.0) return;
         if (_cooldownTimer) clearInterval(_cooldownTimer);
 
         set({ abilityActive: true, abilityCooldownProgress: 0.0 });
+        setTimeout(() => set({ abilityActive: false }), 1500);
 
-        // Dismiss ability effect after 1.5s
-        setTimeout(() => {
-            set({ abilityActive: false });
-        }, 1500);
-
-        // Refill cooldown ring over cooldownSeconds
         const totalMs = cooldownSeconds * 1000;
         const tickMs = 50;
         const tickIncrement = tickMs / totalMs;
@@ -91,100 +86,112 @@ const useGameStore = create((set, get) => ({
 
     // ── Progression Actions ───────────────────────────────────────────────────
 
-    // Called when a level is cleared — checks for new unlocks
-    completeLevel: () => {
-        const { currentLevel, unlockedCharacters } = get();
-        const nextLevel = currentLevel + 1;
+    /**
+     * Call when a level is completed.
+     * 1. Sends PATCH /api/progress to persist the new level in MongoDB.
+     * 2. Updates local state (character unlocks etc.).
+     */
+    completeLevel: async () => {
+        const { currentLevelDB, unlockedCharacters } = get();
+        const nextLevel = currentLevelDB + 1;
 
-        // Character unlock map: level cleared → character index unlocked
+        try {
+            await api.patch('/progress', { currentLevel: nextLevel });
+        } catch (err) {
+            console.error('[gameState] Failed to persist level progress:', err);
+        }
+
         const UNLOCK_MAP = { 1: 1, 2: 2, 3: 3, 4: 4 };
         const newUnlock = UNLOCK_MAP[nextLevel];
 
         if (newUnlock !== undefined && !unlockedCharacters.includes(newUnlock)) {
-            // New character unlocked — show their intro page
             set({
-                currentLevel: nextLevel,
+                currentLevelDB: nextLevel,
                 unlockedCharacters: [...unlockedCharacters, newUnlock],
                 pendingUnlock: newUnlock,
                 introCharacterIndex: newUnlock,
-                currentScene: 'CHAR_INTRO',
             });
         } else {
-            // No new unlock — just increment level and go back to AEGIS
-            set({ currentLevel: nextLevel, currentScene: 'AEGIS' });
+            set({ currentLevelDB: nextLevel });
         }
+
+        return nextLevel;
     },
 
-    // Called when the CHAR_INTRO "Deploy" button is pressed
-    completeCharIntro: () => {
-        const { pendingUnlock, hasSeenIntro } = get();
+    /**
+     * Called when CHAR_INTRO "Deploy" button is pressed.
+     * Sets hasCompletedIntro in DB, then signals 'GAME' so MissionPage
+     * navigates to /level/{currentLevelDB}.
+     */
+    completeCharIntro: async () => {
+        const { pendingUnlock, currentLevelDB } = get();
+
+        // Persist intro completion to DB
+        try {
+            await api.post('/progress', { hasCompletedIntro: true });
+        } catch (err) {
+            console.error('[gameState] Failed to mark intro complete:', err);
+        }
+
         if (pendingUnlock !== null) {
-            // Coming from an unlock — return to AEGIS deck with new character available
             set({
                 pendingUnlock: null,
                 hasSeenIntro: true,
                 selectedCharacter: pendingUnlock,
-                currentScene: 'AEGIS',
+                currentScene: 'GAME',
             });
         } else {
-            // First-time Strategist intro — go to GAME
             set({ hasSeenIntro: true, currentScene: 'GAME' });
         }
     },
 
-    // Transition orchestration
+    // ── Transition Orchestration ──────────────────────────────────────────────
+    // LandingPage sub-phase sequence:
+    // triggerEnterTransition() → TRANSITION → completeTransition() → LOGIN
+    // LandingPage watches 'LOGIN' and navigates to /terminal
+
     triggerEnterTransition: () => {
         const { setScene, setTitleFractured } = get();
         setTitleFractured(true);
-        setTimeout(() => {
-            setScene('TRANSITION');
-        }, 1200);
+        setTimeout(() => setScene('TRANSITION'), 1200);
     },
 
     completeTransition: () => {
         set({ currentScene: 'LOGIN', transitionProgress: 0 });
     },
 
+    // MissionPage sub-phase transitions:
     completeCutscene: () => {
         set({ currentScene: 'AEGIS' });
     },
 
-    // From AEGIS "Deploy" button — show Strategist intro first time, then GAME
     completeAegis: () => {
         const { hasSeenIntro, selectedCharacter } = get();
         if (!hasSeenIntro) {
             set({ currentScene: 'CHAR_INTRO', introCharacterIndex: selectedCharacter });
         } else {
+            // Already seen intro — go straight to game
             set({ currentScene: 'GAME' });
         }
     },
 
-    // Authentication
-    login: async (username, password) => {
-        try {
-            const response = await api.post('/auth/login', { username, password });
-            set({
-                isAuthenticated: true,
-                user: response.data.user
-            });
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
+    // ── Auth ──────────────────────────────────────────────────────────────────
+
+    setUserFromAuth: (userData, level) => {
+        set({ isAuthenticated: true, user: userData, currentLevelDB: Math.max(1, level) });
     },
 
     logout: async () => {
-        try {
-            await api.post('/auth/logout');
-            set({
-                isAuthenticated: false,
-                user: null,
-                gameProgress: null,
-                currentScene: 'INTRO'
-            });
-        } catch (error) {
-            console.error('Logout failed:', error);
-        }
+        try { await api.post('/auth/logout'); } catch { /* swallow */ }
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        set({
+            isAuthenticated: false,
+            user: null,
+            currentLevelDB: 1,
+            gameProgress: null,
+            currentScene: 'INTRO',
+        });
     }
 }));
 
