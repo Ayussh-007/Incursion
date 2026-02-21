@@ -1,7 +1,6 @@
 /**
- * KeypadLock — 4-digit alien entry lock panel
- * Per-digit validation against code [6, 9, 6, 7]
- * Keyboard + on-screen input, sound feedback
+ * KeypadLock — 4-digit alien entry lock panel (ACT II upgrade)
+ * Electric blue strategist theme, onFirstPress timer trigger, UV/ability hints
  */
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,7 +13,6 @@ import {
 
 const CORRECT_CODE = [6, 9, 6, 7];
 
-// Digit slot states: 'empty' | 'pending' | 'correct' | 'wrong'
 function DigitSlot({ value, state, isActive, index }) {
     return (
         <motion.div
@@ -22,7 +20,6 @@ function DigitSlot({ value, state, isActive, index }) {
             animate={state === 'wrong' ? { x: [-4, 4, -3, 3, 0] } : { x: 0 }}
             transition={state === 'wrong' ? { duration: 0.3, ease: 'easeInOut' } : {}}
         >
-            {/* Slot number */}
             <AnimatePresence mode="wait">
                 {value !== null && (
                     <motion.span
@@ -38,7 +35,6 @@ function DigitSlot({ value, state, isActive, index }) {
                 )}
             </AnimatePresence>
 
-            {/* Active cursor blink */}
             {isActive && value === null && (
                 <motion.div
                     className="keypad-slot-cursor"
@@ -47,10 +43,8 @@ function DigitSlot({ value, state, isActive, index }) {
                 />
             )}
 
-            {/* State indicator line */}
             <div className="keypad-slot-indicator" />
 
-            {/* Corner brackets */}
             <div className="ks-corner ks-tl" />
             <div className="ks-corner ks-tr" />
             <div className="ks-corner ks-bl" />
@@ -72,12 +66,20 @@ function KeypadButton({ label, onClick, isBackspace }) {
     );
 }
 
-function KeypadLock({ onUnlock, onFlicker }) {
+function KeypadLock({ onUnlock, onFlicker, onFirstPress }) {
     const [digits, setDigits] = useState([null, null, null, null]);
     const [states, setStates] = useState(['empty', 'empty', 'empty', 'empty']);
     const [activeSlot, setActiveSlot] = useState(0);
     const [allCorrect, setAllCorrect] = useState(false);
     const flickerRef = useRef(false);
+    const firstPressRef = useRef(false);
+
+    const triggerFirstPress = useCallback(() => {
+        if (!firstPressRef.current) {
+            firstPressRef.current = true;
+            onFirstPress?.();
+        }
+    }, [onFirstPress]);
 
     const validateDigit = useCallback((slot, value) => {
         const isCorrect = value === CORRECT_CODE[slot];
@@ -92,6 +94,8 @@ function KeypadLock({ onUnlock, onFlicker }) {
     const enterDigit = useCallback((num) => {
         resumeAudio();
         if (allCorrect) return;
+
+        triggerFirstPress();
 
         const slot = activeSlot;
         if (slot >= 4) return;
@@ -111,7 +115,6 @@ function KeypadLock({ onUnlock, onFlicker }) {
         const nextSlot = slot + 1;
         setActiveSlot(nextSlot);
 
-        // Check if all 4 entered
         if (nextSlot === 4) {
             const allFilled = newDigits.every((d) => d !== null);
             const allRight = newStates.every((s) => s === 'correct');
@@ -120,7 +123,6 @@ function KeypadLock({ onUnlock, onFlicker }) {
                 setAllCorrect(true);
                 setTimeout(() => onUnlock?.(), 600);
             } else if (allFilled && !allRight) {
-                // Wrong attempt — flicker + reset after delay
                 if (!flickerRef.current) {
                     flickerRef.current = true;
                     onFlicker?.();
@@ -133,11 +135,12 @@ function KeypadLock({ onUnlock, onFlicker }) {
                 }
             }
         }
-    }, [activeSlot, allCorrect, digits, states, validateDigit, onUnlock, onFlicker]);
+    }, [activeSlot, allCorrect, digits, states, validateDigit, onUnlock, onFlicker, triggerFirstPress]);
 
     const backspace = useCallback(() => {
         resumeAudio();
         if (allCorrect) return;
+        triggerFirstPress();
         const slot = Math.max(0, activeSlot - 1);
         const newDigits = [...digits];
         newDigits[slot] = null;
@@ -146,9 +149,8 @@ function KeypadLock({ onUnlock, onFlicker }) {
         setDigits(newDigits);
         setStates(newStates);
         setActiveSlot(slot);
-    }, [activeSlot, allCorrect, digits, states]);
+    }, [activeSlot, allCorrect, digits, states, triggerFirstPress]);
 
-    // Keyboard input
     useEffect(() => {
         const handler = (e) => {
             if (e.key >= '0' && e.key <= '9') {
@@ -162,7 +164,7 @@ function KeypadLock({ onUnlock, onFlicker }) {
     }, [enterDigit, backspace]);
 
     return (
-        <div className="keypad-panel">
+        <div className="keypad-panel keypad-panel-blue">
             {/* Panel header */}
             <div className="keypad-header">
                 <div className="keypad-header-dot" />
@@ -179,7 +181,7 @@ function KeypadLock({ onUnlock, onFlicker }) {
                     className="keypad-status-indicator"
                     animate={{ opacity: [0.4, 1, 0.4] }}
                     transition={{ duration: 1.4, repeat: Infinity }}
-                    style={{ background: allCorrect ? '#00c8a0' : '#dc143c' }}
+                    style={{ background: allCorrect ? '#00c8a0' : '#1e90ff' }}
                 />
             </div>
 
@@ -207,6 +209,19 @@ function KeypadLock({ onUnlock, onFlicker }) {
                 <KeypadButton label="⌫" isBackspace onClick={backspace} />
                 <KeypadButton label={0} onClick={() => enterDigit(0)} />
                 <div className="keypad-btn-spacer" />
+            </div>
+
+            {/* Ability hint row */}
+            <div className="keypad-ability-hints">
+                <div className="keypad-hint-item">
+                    <span className="keypad-hint-key">[L]</span>
+                    <span className="keypad-hint-text">UV SCANNER</span>
+                </div>
+                <div className="keypad-hint-divider" />
+                <div className="keypad-hint-item">
+                    <span className="keypad-hint-key">[E]</span>
+                    <span className="keypad-hint-text">NEURAL OVERRIDE</span>
+                </div>
             </div>
 
             {/* Energy lines */}

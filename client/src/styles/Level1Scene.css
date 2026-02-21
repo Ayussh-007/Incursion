@@ -1098,7 +1098,8 @@
 }
 
 .keypad-btn-spacer {
-    /* Empty grid cell */
+    display: block;
+    /* empty grid spacer */
 }
 
 /* Energy lines */
@@ -1392,4 +1393,1409 @@
     letter-spacing: 2px;
     color: rgba(220, 20, 60, 0.6);
     font-weight: 700;
+}
+
+.hud-value-blue {
+    color: rgba(30, 144, 255, 0.8);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ACT II — BLUE STRATEGIST INTRO OVERLAY
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.act-intro-blue {
+    background:
+        radial-gradient(ellipse at 50% 40%, rgba(10, 20, 40, 0.95) 0%, #000 70%),
+        #000;
+}
+
+.act-light-blue {
+    background: linear-gradient(180deg,
+            transparent 10%,
+            rgba(30, 144, 255, 0.35) 40%,
+            rgba(30, 144, 255, 0.18) 60%,
+            transparent 90%) !important;
+    box-shadow: 0 0 24px rgba(30, 144, 255, 0.25),
+        0 0 70px rgba(30, 144, 255, 0.08) !important;
+}
+
+.act-label-blue {
+    color: rgba(30, 144, 255, 0.8);
+}
+
+.act-label-glitch-blue {
+    position: relative;
+    display: inline-block;
+    animation: act-glitch-ripple 0.6s steps(1) 0.2s 3;
+}
+
+.act-title-blue {
+    text-shadow:
+        0 0 20px rgba(30, 144, 255, 0.5),
+        0 0 60px rgba(30, 144, 255, 0.2),
+        0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.act-title-glitch-blue {
+    position: relative;
+    display: inline-block;
+    animation: act-title-glitch 0.5s steps(1) 0.5s 2;
+}
+
+.act-separator-blue {
+    background: linear-gradient(90deg, transparent, rgba(30, 144, 255, 0.7), transparent);
+}
+
+.act-sublabel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(9px, 1vw, 11px);
+    letter-spacing: 0.25em;
+    color: rgba(30, 144, 255, 0.45);
+    text-transform: uppercase;
+    margin-top: 4px;
+}
+
+/* blue-tinted fog */
+.act-intro-blue .act-fog-1 {
+    background: radial-gradient(ellipse at 30% 60%, rgba(20, 60, 180, 0.04) 0%, transparent 60%);
+}
+
+.act-intro-blue .act-fog-2 {
+    background: radial-gradient(ellipse at 70% 40%, rgba(10, 40, 120, 0.03) 0%, transparent 50%);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CORRIDOR — FAILURE MODE (red override)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.corridor-failure {
+    filter: brightness(0.8) saturate(1.4);
+}
+
+.corridor-failure .ceiling-light-strip,
+.corridor-failure .wall-light-strip {
+    background: linear-gradient(180deg,
+            transparent 5%,
+            rgba(255, 30, 30, 0.8) 25%,
+            rgba(255, 30, 30, 0.8) 75%,
+            transparent 95%) !important;
+    box-shadow: 0 0 20px rgba(255, 30, 30, 0.7), 0 0 60px rgba(255, 30, 30, 0.3) !important;
+    animation: failure-light-pulse 0.5s ease-in-out infinite !important;
+}
+
+.corridor-failure .floor-reflection {
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(255, 30, 30, 0.12) 0%, transparent 60%),
+        linear-gradient(0deg, rgba(255, 30, 30, 0.06) 0%, transparent 50%);
+}
+
+.corridor-failure .door-frame {
+    border-color: rgba(255, 30, 30, 0.6);
+    box-shadow: inset 0 0 40px rgba(255, 30, 30, 0.15), 0 0 30px rgba(255, 30, 30, 0.2);
+}
+
+.door-frame-light--red {
+    background: #ff1e1e !important;
+    box-shadow: 0 0 10px rgba(255, 30, 30, 0.9) !important;
+    animation: failure-light-pulse 0.4s ease-in-out infinite !important;
+}
+
+.door-frame-light--blue {
+    background: #1e90ff !important;
+    box-shadow: 0 0 8px rgba(30, 144, 255, 0.8) !important;
+}
+
+@keyframes failure-light-pulse {
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UV SCANNER OVERLAY
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.uv-darkness-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(5, 0, 18, 0.72);
+    pointer-events: none;
+    z-index: 14;
+    transition: opacity 0.3s;
+}
+
+.uv-cone {
+    position: fixed;
+    width: 320px;
+    height: 320px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 15;
+    background: radial-gradient(circle,
+            rgba(130, 80, 255, 0.55) 0%,
+            rgba(100, 60, 220, 0.35) 18%,
+            rgba(80, 40, 180, 0.18) 35%,
+            rgba(60, 30, 160, 0.08) 55%,
+            transparent 70%);
+    filter: blur(6px);
+    mix-blend-mode: screen;
+    border-radius: 50%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MORSE CODE PANELS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.morse-panel {
+    position: absolute;
+    top: 30%;
+    width: 85%;
+    height: 40%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 16;
+    /* devtools-discoverable via data-morse attribute */
+}
+
+.morse-panel-left {
+    left: 5%;
+}
+
+.morse-panel-right {
+    right: 5%;
+}
+
+/* Alien scratch texture background — always subtly visible */
+.morse-scratch-bg {
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(17deg,
+            transparent,
+            transparent 8px,
+            rgba(100, 80, 160, 0.025) 8px,
+            rgba(100, 80, 160, 0.025) 9px),
+        repeating-linear-gradient(-17deg,
+            transparent,
+            transparent 12px,
+            rgba(80, 60, 140, 0.02) 12px,
+            rgba(80, 60, 140, 0.02) 13px);
+    border-radius: 2px;
+}
+
+.morse-text-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    opacity: calc(var(--uv-reveal, 0) * 0.95);
+    transition: opacity 0.15s ease;
+}
+
+.morse-side-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 6px;
+    letter-spacing: 0.3em;
+    color: rgba(140, 100, 255, 0.7);
+    text-transform: uppercase;
+}
+
+.morse-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: rgba(160, 120, 255, 0.85);
+    text-shadow: 0 0 8px rgba(140, 80, 255, 0.7), 0 0 20px rgba(120, 60, 230, 0.3);
+}
+
+.morse-glyph-row {
+    display: flex;
+    gap: 1px;
+}
+
+.morse-glyph {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: rgba(160, 120, 255, 0.9);
+    text-shadow: 0 0 6px rgba(140, 80, 255, 0.8);
+}
+
+.morse-dash {
+    color: rgba(180, 140, 255, 0.9);
+}
+
+.morse-dot {
+    color: rgba(140, 100, 255, 0.9);
+}
+
+.morse-space {
+    padding: 0 6px;
+}
+
+.morse-scratches {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(45deg,
+            transparent,
+            transparent 14px,
+            rgba(140, 100, 255, 0.1) 14px,
+            rgba(140, 100, 255, 0.1) 15px);
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TIMER DISPLAY
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.timer-display {
+    position: fixed;
+    top: 20px;
+    right: 24px;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    padding: 12px 16px;
+    background: rgba(4, 12, 30, 0.82);
+    border: 1px solid rgba(30, 144, 255, 0.25);
+    border-radius: 4px;
+    box-shadow: 0 0 20px rgba(30, 144, 255, 0.08), inset 0 0 16px rgba(30, 144, 255, 0.04);
+    backdrop-filter: blur(6px);
+}
+
+.timer-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.3em;
+    color: rgba(30, 144, 255, 0.5);
+    text-transform: uppercase;
+}
+
+.timer-value {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(18px, 2.4vw, 28px);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: rgba(30, 144, 255, 0.95);
+    text-shadow: 0 0 14px rgba(30, 144, 255, 0.5);
+}
+
+.timer-warning {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.2em;
+    color: rgba(255, 140, 30, 0.8);
+    text-transform: uppercase;
+}
+
+.timer-urgent .timer-value {
+    color: rgba(255, 140, 30, 0.95);
+    text-shadow: 0 0 14px rgba(255, 140, 30, 0.6);
+    animation: timer-pulse-warn 0.7s ease-in-out infinite;
+}
+
+.timer-urgent {
+    border-color: rgba(255, 140, 30, 0.35);
+    box-shadow: 0 0 20px rgba(255, 140, 30, 0.12);
+}
+
+.timer-critical .timer-value {
+    color: rgba(255, 40, 40, 0.95);
+    text-shadow: 0 0 16px rgba(255, 40, 40, 0.8);
+    animation: timer-pulse-crit 0.4s ease-in-out infinite;
+}
+
+.timer-critical {
+    border-color: rgba(255, 40, 40, 0.5);
+    box-shadow: 0 0 24px rgba(255, 40, 40, 0.2);
+}
+
+@keyframes timer-pulse-warn {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+@keyframes timer-pulse-crit {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   STRATEGIST BADGES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.strategist-badges {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    display: flex;
+    gap: 10px;
+    z-index: 50;
+}
+
+.strat-badge {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(4, 12, 30, 0.8);
+    border: 1px solid rgba(30, 144, 255, 0.15);
+    border-radius: 3px;
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.strat-badge-active {
+    border-color: rgba(140, 80, 255, 0.6) !important;
+    box-shadow: 0 0 16px rgba(140, 80, 255, 0.2);
+}
+
+.strat-badge-ready {
+    border-color: rgba(30, 144, 255, 0.35);
+}
+
+.strat-badge-cooldown {
+    border-color: rgba(30, 144, 255, 0.1);
+    opacity: 0.6;
+}
+
+.strat-badge-key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: rgba(30, 144, 255, 0.7);
+    letter-spacing: 0.1em;
+}
+
+.strat-badge-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 7px;
+    letter-spacing: 0.2em;
+    color: rgba(180, 200, 255, 0.6);
+    text-transform: uppercase;
+}
+
+.strat-badge-glow {
+    position: absolute;
+    inset: 0;
+    background: rgba(140, 80, 255, 0.08);
+    animation: badge-glow-pulse 1.2s ease-in-out infinite;
+}
+
+.strat-badge-cd-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(30, 144, 255, 0.6), rgba(30, 144, 255, 0.3));
+    transition: width 0.1s linear;
+}
+
+@keyframes badge-glow-pulse {
+
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   NEURAL OVERRIDE OVERLAY
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.neural-override-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    pointer-events: all;
+}
+
+/* Blue grid */
+.neural-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(30, 144, 255, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(30, 144, 255, 0.07) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: neural-grid-sweep 3s linear infinite;
+}
+
+@keyframes neural-grid-sweep {
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 40px 40px;
+    }
+}
+
+/* Edge glow */
+.neural-edge-glow {
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 80px rgba(30, 144, 255, 0.14),
+        inset 0 0 160px rgba(30, 144, 255, 0.06);
+    pointer-events: none;
+}
+
+/* Corner brackets */
+.neural-corner {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-color: rgba(30, 144, 255, 0.5);
+    border-style: solid;
+}
+
+.neural-tl {
+    top: 16px;
+    left: 16px;
+    border-width: 2px 0 0 2px;
+}
+
+.neural-tr {
+    top: 16px;
+    right: 16px;
+    border-width: 2px 2px 0 0;
+}
+
+.neural-bl {
+    bottom: 16px;
+    left: 16px;
+    border-width: 0 0 2px 2px;
+}
+
+.neural-br {
+    bottom: 16px;
+    right: 16px;
+    border-width: 0 2px 2px 0;
+}
+
+/* HUD top bar */
+.neural-hud-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: rgba(4, 12, 30, 0.88);
+    border-bottom: 1px solid rgba(30, 144, 255, 0.2);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 24px;
+}
+
+.neural-hud-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: rgba(30, 144, 255, 0.9);
+    text-transform: uppercase;
+}
+
+.neural-hud-op {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    color: rgba(180, 200, 255, 0.5);
+}
+
+.neural-hud-dismiss {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    color: rgba(30, 144, 255, 0.6);
+    animation: neural-blink 1s step-end infinite;
+}
+
+@keyframes neural-blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+/* Glass inspection panel */
+.neural-glass-panel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(560px, 88vw);
+    background: rgba(6, 16, 38, 0.88);
+    border: 1px solid rgba(30, 144, 255, 0.3);
+    border-radius: 6px;
+    padding: 24px 28px;
+    box-shadow:
+        0 0 40px rgba(30, 144, 255, 0.12),
+        0 0 80px rgba(30, 144, 255, 0.05),
+        inset 0 0 30px rgba(30, 144, 255, 0.05);
+    backdrop-filter: blur(12px);
+    overflow: hidden;
+}
+
+/* Panel header */
+.neural-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.25em;
+    color: rgba(30, 144, 255, 0.55);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+
+.neural-panel-dot {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(30, 144, 255, 0.3), transparent);
+}
+
+/* Scan sweep line */
+.neural-scan-sweep {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(30, 144, 255, 0.6), transparent);
+    animation: neural-scan 2.5s linear infinite;
+}
+
+@keyframes neural-scan {
+    0% {
+        top: 0;
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 0.4;
+    }
+
+    100% {
+        top: calc(100% + 2px);
+        opacity: 0;
+    }
+}
+
+/* Anomaly block */
+.neural-anomaly-block {
+    padding: 10px 14px;
+    background: rgba(30, 144, 255, 0.06);
+    border: 1px solid rgba(30, 144, 255, 0.15);
+    border-radius: 3px;
+    margin-bottom: 18px;
+}
+
+.neural-anomaly-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: rgba(30, 144, 255, 0.9);
+    margin-bottom: 4px;
+}
+
+.neural-anomaly-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    color: rgba(30, 144, 255, 0.45);
+    text-transform: uppercase;
+}
+
+/* Clue lines */
+.neural-clues {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.neural-clue-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: rgba(200, 220, 255, 0.8);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.neural-clue-bullet {
+    color: rgba(30, 144, 255, 0.7);
+    font-size: 13px;
+}
+
+/* Decoder relay */
+.neural-decode-relay {
+    padding: 12px 14px;
+    background: rgba(30, 144, 255, 0.04);
+    border: 1px solid rgba(30, 144, 255, 0.12);
+    border-radius: 3px;
+    margin-bottom: 16px;
+}
+
+.neural-relay-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.3em;
+    color: rgba(30, 144, 255, 0.4);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.neural-relay-url {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    user-select: none;
+    pointer-events: none;
+}
+
+.neural-relay-protocol {
+    color: rgba(30, 144, 255, 0.4);
+}
+
+.neural-relay-domain {
+    color: rgba(140, 180, 255, 0.75);
+    text-shadow: 0 0 8px rgba(30, 144, 255, 0.3);
+    filter: blur(0.5px);
+}
+
+.neural-relay-note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.2em;
+    color: rgba(30, 144, 255, 0.35);
+    margin-top: 6px;
+    text-transform: uppercase;
+    animation: neural-blink 1.6s step-end infinite;
+}
+
+/* Hex cells */
+.neural-hex-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.neural-hex-cell {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    color: rgba(30, 144, 255, 0.4);
+    padding: 4px 10px;
+    border: 1px solid rgba(30, 144, 255, 0.12);
+    border-radius: 2px;
+}
+
+/* Panel footer */
+.neural-panel-footer {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.2em;
+    color: rgba(30, 144, 255, 0.3);
+    text-transform: uppercase;
+    padding-top: 12px;
+    border-top: 1px solid rgba(30, 144, 255, 0.1);
+}
+
+.neural-footer-code {
+    color: rgba(30, 144, 255, 0.45);
+}
+
+/* Wall node highlights */
+.neural-wall-node {
+    position: absolute;
+    top: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.neural-node-left {
+    left: 14%;
+    transform: translateY(-50%);
+}
+
+.neural-node-right {
+    right: 14%;
+    transform: translateY(-50%);
+}
+
+.neural-node-ring {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid rgba(30, 144, 255, 0.6);
+    box-shadow: 0 0 12px rgba(30, 144, 255, 0.4);
+}
+
+.neural-node-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 6px;
+    letter-spacing: 0.2em;
+    color: rgba(30, 144, 255, 0.7);
+    text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FAILURE SCREEN
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.level1-failure-wrapper {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+}
+
+.failure-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 75;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Red ambient overlay */
+.failure-ambient {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 30%, rgba(200, 20, 20, 0.22) 0%, rgba(0, 0, 0, 0.7) 70%);
+    pointer-events: none;
+}
+
+.failure-scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.2) 2px,
+            rgba(0, 0, 0, 0.2) 4px);
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* Scan beam */
+.failure-scan-beam {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 60px;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 30, 30, 0.25),
+            rgba(255, 60, 60, 0.4),
+            rgba(255, 30, 30, 0.25),
+            transparent);
+    filter: blur(4px);
+    z-index: 3;
+    pointer-events: none;
+}
+
+.failure-scan-beam-2 {
+    width: 30px;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 100, 100, 0.15),
+            rgba(255, 80, 80, 0.25),
+            rgba(255, 100, 100, 0.15),
+            transparent);
+}
+
+.failure-red-pulse {
+    position: absolute;
+    inset: 0;
+    background: rgba(180, 10, 10, 0.15);
+    pointer-events: none;
+}
+
+/* Content panel */
+.failure-content {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 36px 48px;
+    background: rgba(8, 0, 0, 0.82);
+    border: 1px solid rgba(220, 20, 60, 0.25);
+    border-radius: 4px;
+    box-shadow: 0 0 60px rgba(220, 20, 60, 0.15), 0 0 120px rgba(220, 20, 60, 0.06);
+    backdrop-filter: blur(10px);
+    text-align: center;
+    min-width: min(460px, 90vw);
+}
+
+/* Corners */
+.failure-corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-color: rgba(220, 20, 60, 0.5);
+    border-style: solid;
+}
+
+.failure-tl {
+    top: 10px;
+    left: 10px;
+    border-width: 1.5px 0 0 1.5px;
+}
+
+.failure-tr {
+    top: 10px;
+    right: 10px;
+    border-width: 1.5px 1.5px 0 0;
+}
+
+.failure-bl {
+    bottom: 10px;
+    left: 10px;
+    border-width: 0 0 1.5px 1.5px;
+}
+
+.failure-br {
+    bottom: 10px;
+    right: 10px;
+    border-width: 0 1.5px 1.5px 0;
+}
+
+.failure-separator {
+    width: 160px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(220, 20, 60, 0.5), transparent);
+    transform-origin: center;
+}
+
+.failure-status-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.3em;
+    color: rgba(220, 20, 60, 0.6);
+    text-transform: uppercase;
+}
+
+.failure-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(32px, 6vw, 64px);
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    color: rgba(240, 60, 60, 0.95);
+    text-shadow: 0 0 24px rgba(220, 20, 60, 0.6), 0 0 60px rgba(220, 20, 60, 0.2);
+    margin: 0;
+    line-height: 1;
+}
+
+.failure-subtitle {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(10px, 1.4vw, 14px);
+    letter-spacing: 0.3em;
+    color: rgba(200, 100, 100, 0.7);
+    text-transform: uppercase;
+    margin: 0;
+}
+
+/* Diagnostics */
+.failure-diag {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    padding: 12px 0;
+    border-top: 1px solid rgba(220, 20, 60, 0.08);
+    border-bottom: 1px solid rgba(220, 20, 60, 0.08);
+}
+
+.failure-diag-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.failure-diag-key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.25em;
+    color: rgba(180, 60, 60, 0.5);
+    text-transform: uppercase;
+}
+
+.failure-diag-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    color: rgba(200, 120, 120, 0.7);
+}
+
+.failure-diag-cause {
+    color: rgba(255, 80, 80, 0.9);
+    text-shadow: 0 0 8px rgba(255, 50, 50, 0.4);
+}
+
+/* Retry button */
+.failure-retry-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 28px;
+    background: rgba(220, 20, 60, 0.08);
+    border: 1px solid rgba(220, 20, 60, 0.4);
+    border-radius: 3px;
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: rgba(255, 80, 80, 0.9);
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+    margin-top: 6px;
+}
+
+.failure-retry-btn:hover {
+    background: rgba(220, 20, 60, 0.16);
+    border-color: rgba(220, 20, 60, 0.65);
+    box-shadow: 0 0 20px rgba(220, 20, 60, 0.2);
+}
+
+.failure-retry-icon {
+    font-size: 15px;
+    line-height: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   KEYPAD — BLUE STRATEGIST THEME
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.keypad-panel-blue {
+    position: relative;
+    width: 220px;
+    padding: 20px 18px;
+    background: rgba(4, 12, 30, 0.9);
+    border: 1px solid rgba(30, 144, 255, 0.28);
+    border-radius: 6px;
+    box-shadow:
+        0 0 30px rgba(30, 144, 255, 0.1),
+        0 0 60px rgba(30, 144, 255, 0.04),
+        inset 0 0 20px rgba(30, 144, 255, 0.04);
+    backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* Corner brackets */
+.kp-corner {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-color: rgba(30, 144, 255, 0.4);
+    border-style: solid;
+}
+
+.kp-tl {
+    top: 8px;
+    left: 8px;
+    border-width: 1.5px 0 0 1.5px;
+}
+
+.kp-tr {
+    top: 8px;
+    right: 8px;
+    border-width: 1.5px 1.5px 0 0;
+}
+
+.kp-bl {
+    bottom: 8px;
+    left: 8px;
+    border-width: 0 0 1.5px 1.5px;
+}
+
+.kp-br {
+    bottom: 8px;
+    right: 8px;
+    border-width: 0 1.5px 1.5px 0;
+}
+
+/* Header */
+.keypad-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.keypad-header-dot {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(30, 144, 255, 0.3), transparent);
+}
+
+.keypad-header-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.28em;
+    color: rgba(30, 144, 255, 0.5);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Status line */
+.keypad-status-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.keypad-status-text {
+    font-family: 'Orbitron', monospace;
+    font-size: 8px;
+    letter-spacing: 0.18em;
+    color: rgba(30, 144, 255, 0.7);
+    text-transform: uppercase;
+}
+
+.keypad-status-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+/* Digit slots */
+.keypad-slots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.keypad-slot {
+    position: relative;
+    width: 40px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(4, 12, 30, 0.9);
+    border-radius: 3px;
+    border: 1px solid rgba(30, 144, 255, 0.18);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    overflow: visible;
+}
+
+.keypad-slot--active {
+    border-color: rgba(30, 144, 255, 0.5);
+    box-shadow: 0 0 12px rgba(30, 144, 255, 0.2);
+}
+
+.keypad-slot--correct {
+    border-color: rgba(0, 220, 160, 0.5);
+    box-shadow: 0 0 12px rgba(0, 200, 140, 0.3);
+    background: rgba(0, 200, 140, 0.05);
+}
+
+.keypad-slot--wrong {
+    border-color: rgba(220, 60, 60, 0.5);
+    box-shadow: 0 0 12px rgba(220, 60, 60, 0.25);
+    background: rgba(220, 60, 60, 0.04);
+}
+
+.keypad-slot-digit {
+    font-family: 'Orbitron', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: rgba(30, 144, 255, 0.95);
+    text-shadow: 0 0 10px rgba(30, 144, 255, 0.5);
+}
+
+.keypad-slot-cursor {
+    width: 16px;
+    height: 2px;
+    background: rgba(30, 144, 255, 0.7);
+    border-radius: 1px;
+}
+
+.keypad-slot-indicator {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 1px;
+    background: rgba(30, 144, 255, 0.2);
+}
+
+/* Slot corners */
+.ks-corner {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-color: rgba(30, 144, 255, 0.25);
+    border-style: solid;
+}
+
+.ks-tl {
+    top: 2px;
+    left: 2px;
+    border-width: 1px 0 0 1px;
+}
+
+.ks-tr {
+    top: 2px;
+    right: 2px;
+    border-width: 1px 1px 0 0;
+}
+
+.ks-bl {
+    bottom: 2px;
+    left: 2px;
+    border-width: 0 0 1px 1px;
+}
+
+.ks-br {
+    bottom: 2px;
+    right: 2px;
+    border-width: 0 1px 1px 0;
+}
+
+/* Divider */
+.keypad-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(30, 144, 255, 0.18), transparent);
+}
+
+/* Keypad grid */
+.keypad-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+}
+
+.keypad-btn {
+    padding: 10px 0;
+    background: rgba(8, 20, 50, 0.7);
+    border: 1px solid rgba(30, 144, 255, 0.15);
+    border-radius: 3px;
+    font-family: 'Orbitron', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(30, 144, 255, 0.85);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.keypad-btn:hover {
+    background: rgba(30, 144, 255, 0.1);
+    border-color: rgba(30, 144, 255, 0.4);
+    box-shadow: 0 0 12px rgba(30, 144, 255, 0.15);
+}
+
+.keypad-btn--back {
+    color: rgba(200, 100, 100, 0.7);
+    border-color: rgba(200, 80, 80, 0.15);
+}
+
+.keypad-btn--back:hover {
+    background: rgba(200, 60, 60, 0.08);
+    border-color: rgba(200, 80, 80, 0.35);
+}
+
+.keypad-btn-spacer {
+    display: block;
+    /* empty grid spacer — new blue keypad */
+}
+
+/* Ability hints */
+.keypad-ability-hints {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding-top: 4px;
+}
+
+.keypad-hint-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.keypad-hint-key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: rgba(30, 144, 255, 0.55);
+    letter-spacing: 0;
+}
+
+.keypad-hint-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.15em;
+    color: rgba(30, 144, 255, 0.3);
+    text-transform: uppercase;
+}
+
+.keypad-hint-divider {
+    width: 1px;
+    height: 12px;
+    background: rgba(30, 144, 255, 0.18);
+}
+
+/* Energy lines */
+.keypad-energy-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+    border-radius: 2px;
+    height: 6px;
+}
+
+.keypad-energy-line {
+    height: 2px;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(30, 144, 255, 0.4) 30%,
+            rgba(30, 144, 255, 0.6) 50%,
+            rgba(30, 144, 255, 0.4) 70%,
+            transparent 100%);
+    animation: energy-sweep 2.5s linear infinite;
+}
+
+.keypad-energy-line:nth-child(2) {
+    animation-delay: 0.6s;
+    opacity: 0.6;
+}
+
+.keypad-energy-line:nth-child(3) {
+    animation-delay: 1.2s;
+    opacity: 0.4;
+}
+
+@keyframes energy-sweep {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SUCCESS OVERLAY — BLUE THEME ADDITIONS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.success-overlay-blue {
+    background: rgba(4, 12, 30, 0.95);
+}
+
+.success-separator-blue {
+    background: linear-gradient(90deg, transparent, rgba(30, 144, 255, 0.6), transparent) !important;
+}
+
+.success-title-blue {
+    color: rgba(30, 200, 255, 0.96);
+    text-shadow: 0 0 24px rgba(30, 144, 255, 0.55),
+        0 0 60px rgba(30, 144, 255, 0.2),
+        0 2px 4px rgba(0, 0, 0, 0.8) !important;
+}
+
+.success-progress-fill-blue {
+    background: linear-gradient(90deg,
+            rgba(30, 144, 255, 0.4),
+            rgba(30, 200, 255, 0.8),
+            rgba(30, 144, 255, 0.6)) !important;
+}
+
+.success-progress-glow-blue {
+    box-shadow: 0 0 14px rgba(30, 144, 255, 0.7), 0 0 28px rgba(30, 200, 255, 0.4) !important;
+}
+
+/* Codex fragment reveal */
+.success-codex-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 24px;
+    background: rgba(30, 144, 255, 0.04);
+    border: 1px solid rgba(30, 144, 255, 0.2);
+    border-radius: 4px;
+    margin-top: 8px;
+}
+
+.success-codex-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.35em;
+    color: rgba(30, 144, 255, 0.6);
+    text-transform: uppercase;
+}
+
+.success-codex-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.success-codex-digit {
+    font-size: 32px;
+    color: rgba(30, 200, 255, 0.9);
+    text-shadow: 0 0 20px rgba(30, 144, 255, 0.7);
+    line-height: 1;
+}
+
+.success-codex-fragment {
+    font-family: 'Orbitron', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: rgba(30, 200, 255, 0.85);
+    text-shadow: 0 0 12px rgba(30, 144, 255, 0.5);
+}
+
+.success-codex-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.25em;
+    color: rgba(30, 144, 255, 0.35);
+    text-transform: uppercase;
 }
