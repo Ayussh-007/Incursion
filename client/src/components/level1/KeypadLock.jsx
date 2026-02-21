@@ -11,7 +11,7 @@ import {
     playWrongTone,
 } from '../../utils/soundEngine';
 
-const CORRECT_CODE = [6, 9, 6, 7];
+const CORRECT_CODE = [1, 7, 2, 9];
 
 function DigitSlot({ value, state, isActive, index }) {
     return (
@@ -66,36 +66,16 @@ function KeypadButton({ label, onClick, isBackspace }) {
     );
 }
 
-function KeypadLock({ onUnlock, onFlicker, onFirstPress }) {
+function KeypadLock({ onUnlock, onFlicker }) {
     const [digits, setDigits] = useState([null, null, null, null]);
     const [states, setStates] = useState(['empty', 'empty', 'empty', 'empty']);
     const [activeSlot, setActiveSlot] = useState(0);
     const [allCorrect, setAllCorrect] = useState(false);
     const flickerRef = useRef(false);
-    const firstPressRef = useRef(false);
-
-    const triggerFirstPress = useCallback(() => {
-        if (!firstPressRef.current) {
-            firstPressRef.current = true;
-            onFirstPress?.();
-        }
-    }, [onFirstPress]);
-
-    const validateDigit = useCallback((slot, value) => {
-        const isCorrect = value === CORRECT_CODE[slot];
-        if (isCorrect) {
-            playCorrectChime();
-        } else {
-            playWrongTone();
-        }
-        return isCorrect ? 'correct' : 'wrong';
-    }, []);
 
     const enterDigit = useCallback((num) => {
         resumeAudio();
         if (allCorrect) return;
-
-        triggerFirstPress();
 
         const slot = activeSlot;
         if (slot >= 4) return;
@@ -105,9 +85,9 @@ function KeypadLock({ onUnlock, onFlicker, onFirstPress }) {
         const newDigits = [...digits];
         newDigits[slot] = num;
 
+        // Keep slots neutral (no per-digit colour reveal) until all 4 entered
         const newStates = [...states];
-        const result = validateDigit(slot, num);
-        newStates[slot] = result;
+        newStates[slot] = 'filled';
 
         setDigits(newDigits);
         setStates(newStates);
@@ -116,13 +96,14 @@ function KeypadLock({ onUnlock, onFlicker, onFirstPress }) {
         setActiveSlot(nextSlot);
 
         if (nextSlot === 4) {
-            const allFilled = newDigits.every((d) => d !== null);
-            const allRight = newStates.every((s) => s === 'correct');
+            const allRight = newDigits.every((d, i) => d === CORRECT_CODE[i]);
 
-            if (allFilled && allRight) {
+            if (allRight) {
+                playCorrectChime();
                 setAllCorrect(true);
                 setTimeout(() => onUnlock?.(), 600);
-            } else if (allFilled && !allRight) {
+            } else {
+                playWrongTone();
                 if (!flickerRef.current) {
                     flickerRef.current = true;
                     onFlicker?.();
@@ -135,12 +116,11 @@ function KeypadLock({ onUnlock, onFlicker, onFirstPress }) {
                 }
             }
         }
-    }, [activeSlot, allCorrect, digits, states, validateDigit, onUnlock, onFlicker, triggerFirstPress]);
+    }, [activeSlot, allCorrect, digits, states, onUnlock, onFlicker]);
 
     const backspace = useCallback(() => {
         resumeAudio();
         if (allCorrect) return;
-        triggerFirstPress();
         const slot = Math.max(0, activeSlot - 1);
         const newDigits = [...digits];
         newDigits[slot] = null;
@@ -149,7 +129,7 @@ function KeypadLock({ onUnlock, onFlicker, onFirstPress }) {
         setDigits(newDigits);
         setStates(newStates);
         setActiveSlot(slot);
-    }, [activeSlot, allCorrect, digits, states, triggerFirstPress]);
+    }, [activeSlot, allCorrect, digits, states]);
 
     useEffect(() => {
         const handler = (e) => {

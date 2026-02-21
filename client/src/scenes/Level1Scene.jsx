@@ -15,26 +15,26 @@ import FailureScreen from '../components/level1/FailureScreen';
 import { resumeAudio, playUVActivate, playNeuralOverride, playTensionDrone } from '../utils/soundEngine';
 import '../styles/Level1Scene.css';
 
-const TIMER_SECONDS = 180; // 3 minutes
-const NEURAL_COOLDOWN = 45; // seconds
+const TIMER_SECONDS = 120; // 2 minutes
+const NEURAL_COOLDOWN = 15; // seconds
 
 // ── Morse code panels — embedded in corridor walls ─────────────────────────────
 // Puzzle chain:
 //   UV mode (L) illuminates Morse on both walls
-//   Left  panel: .---- -...   (encodes "1B" in international Morse)
-//   Right panel: ...-- --...  (encodes "37" in international Morse)
-//   Concat both → paste into https://morsecode.world/international/translator.html
-//   Translator outputs: 1B37  (hexadecimal)
-//   Convert hex→decimal: 0x1B37 = 6967  ← keypad code
+//   Left  panel: .---- --...  (Morse for digits 1 and 7)
+//   Right panel: ..--- ----.  (Morse for digits 2 and 9)
+//   Decode at: https://morsecode.world/international/translator.html → output is 1729
+//   Enter 1729 on the keypad → access granted
 function MorsePanel({ side, uvMode, cursorPos }) {
     const panelRef = useRef(null);
     const [uvReveal, setUvReveal] = useState(0);
 
-    // Correct Morse for 1B37:
-    //   1 = .----  B = -...  →  left segment
-    //   3 = ...--  7 = --... →  right segment
-    const morseCode = side === 'left' ? '.---- -...' : '...-- --...';
-    const morseHint = side === 'left' ? 'SEGMENT 1-2' : 'SEGMENT 3-4';
+    // Correct Morse for 1729:
+    //   1 = .----   7 = --...  →  left panel
+    //   2 = ..---   9 = ----.  →  right panel
+    // Password 1729: 1=.---- 7=--... 2=..--- 9=----.
+    const morseCode = side === 'left' ? '.---- --...' : '..--- ----.';
+    const morseHint = side === 'left' ? 'KEYPAD 1·7' : 'KEYPAD 2·9';
     // data-morse attribute is readable via DevTools as an extra hint
     // INCURSION :: Morse on this surface. Decode at: https://morsecode.world/international/translator.html
 
@@ -255,9 +255,8 @@ function Level1Scene() {
     // Environment
     const [flickering, setFlickering] = useState(false);
 
-    // Timer
+    // Timer — starts immediately when gameplay phase loads
     const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
-    const [timerStarted, setTimerStarted] = useState(false);
     const timerRef = useRef(null);
 
     // UV mode
@@ -270,9 +269,9 @@ function Level1Scene() {
     const [neuralCooldownPct, setNeuralCooldownPct] = useState(0);
     const neuralCdRef = useRef(null);
 
-    // ── Timer management ───────────────────────────────────────────────────────
+    // ── Timer management — starts automatically when GAMEPLAY loads ───────────
     useEffect(() => {
-        if (!timerStarted || phase !== 'GAMEPLAY') return;
+        if (phase !== 'GAMEPLAY') return;
         if (neuralActive) return; // paused during ability
 
         timerRef.current = setInterval(() => {
@@ -292,7 +291,7 @@ function Level1Scene() {
         }, 1000);
 
         return () => clearInterval(timerRef.current);
-    }, [timerStarted, phase, neuralActive]);
+    }, [phase, neuralActive]);
 
     // ── Mouse tracking for UV cone ─────────────────────────────────────────────
     useEffect(() => {
@@ -353,12 +352,8 @@ function Level1Scene() {
     // ── Callbacks ──────────────────────────────────────────────────────────────
     const handleActDone = useCallback(() => setPhase('GAMEPLAY'), []);
 
-    const handleFirstPress = useCallback(() => {
-        setTimerStarted(true);
-    }, []);
-
     const handleUnlock = useCallback(() => {
-        clearInterval(timerRef.current); // freeze timer
+        clearInterval(timerRef.current);
         setPhase('UNLOCKING');
     }, []);
 
@@ -381,7 +376,6 @@ function Level1Scene() {
         clearInterval(neuralCdRef.current);
         setPhase('GAMEPLAY');
         setTimeLeft(TIMER_SECONDS);
-        setTimerStarted(false);
         setUvMode(false);
         setNeuralActive(false);
         setNeuralReady(true);
@@ -415,7 +409,7 @@ function Level1Scene() {
                             cursorPos={cursorPos}
                         />
 
-                        {/* Keypad — only during GAMEPLAY */}
+                        {/* Keypad — only during GAMEPLAY, draggable */}
                         <AnimatePresence>
                             {phase === 'GAMEPLAY' && (
                                 <motion.div
@@ -424,11 +418,16 @@ function Level1Scene() {
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: 30 }}
                                     transition={{ duration: 0.5, delay: 0.3 }}
+                                    drag
+                                    dragConstraints={{ left: -700, right: 200, top: -300, bottom: 300 }}
+                                    dragElastic={0.12}
+                                    dragMomentum={false}
+                                    whileDrag={{ scale: 1.03, boxShadow: '0 0 40px rgba(30,144,255,0.25)' }}
+                                    style={{ cursor: 'grab' }}
                                 >
                                     <KeypadLock
                                         onUnlock={handleUnlock}
                                         onFlicker={handleFlicker}
-                                        onFirstPress={handleFirstPress}
                                     />
                                 </motion.div>
                             )}
@@ -497,16 +496,25 @@ function Level1Scene() {
 
             {/* ── OPERATIVE HUD badges ── */}
             {phase === 'GAMEPLAY' && (
-                <StrategistBadges
-                    uvMode={uvMode}
-                    neuralReady={neuralReady}
-                    neuralCooldownPct={neuralCooldownPct}
-                />
+                <motion.div
+                    style={{ position: 'fixed', bottom: 24, left: 24, zIndex: 50, cursor: 'grab' }}
+                    drag
+                    dragConstraints={{ left: -24, right: 800, top: -600, bottom: 24 }}
+                    dragElastic={0.1}
+                    dragMomentum={false}
+                    whileDrag={{ scale: 1.04 }}
+                >
+                    <StrategistBadges
+                        uvMode={uvMode}
+                        neuralReady={neuralReady}
+                        neuralCooldownPct={neuralCooldownPct}
+                    />
+                </motion.div>
             )}
 
-            {/* ── TIMER ── */}
+            {/* ── TIMER ── always started */}
             {phase === 'GAMEPLAY' && (
-                <TimerDisplay timeLeft={timeLeft} started={timerStarted} />
+                <TimerDisplay timeLeft={timeLeft} started={true} />
             )}
         </div>
     );
