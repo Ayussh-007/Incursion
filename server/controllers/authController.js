@@ -1,7 +1,10 @@
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import { validationResult } from 'express-validator';
 import User from '../models/User.js';
 import GameProgress from '../models/GameProgress.js';
+import Otp from '../models/Otp.js';
+import { sendOtpEmail, generateOtp } from '../utils/emailService.js';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -36,7 +39,7 @@ async function getOrCreateProgress(userId) {
 
 // ── Controllers ───────────────────────────────────────────────────────────────
 
-// @desc    Register new user
+// @desc    Step 1 — Send registration OTP to email
 // @route   POST /api/auth/register
 // @access  Public
 export const register = async (req, res) => {
@@ -46,49 +49,120 @@ export const register = async (req, res) => {
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { username, password } = req.body;
+        const { username, email, password } = req.body;
 
-        // Auto-generate a placeholder email so the unique index is satisfied
-        // without requiring the terminal user to supply one.
-        const email = `${username.toLowerCase()}@incursion.local`;
-
-        // Check if user exists
+        // Check if username or email already taken
         const existingUser = await User.findOne({ $or: [{ email }, { username }] });
         if (existingUser) {
             return res.status(400).json({
                 error: existingUser.username === username
                     ? 'Username already taken'
-                    : 'User already exists'
+                    : 'Email already registered'
             });
         }
 
-        // Create user
-        const user = new User({ username, email, password });
-        await user.save();
+        // Remove any previous pending OTPs for this email
+        await Otp.deleteMany({ email });
 
-        // Create game progress (starting at level 1)
+        // Generate & store OTP (password is hashed by the Otp pre-save hook... no,
+        // we hash it ourselves here so we can recreate the user later)
+        const otpCode = generateOtp();
+
+        // Hash the password now so we don't store plaintext in the Otp doc
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const otpDoc = new Otp({
+            email,
+            username,
+            password: hashedPassword,
+            otp: otpCode    // hashed by Otp pre-save hook
+        });
+        await otpDoc.save();
+
+        // Send OTP via email (or log to console in dev mode)
+        await sendOtpEmail(email, otpCode);
+
+        res.status(200).json({
+            message: 'OTP sent to email',
+            email
+        });
+    } catch (error) {
+        console.error('Register/OTP error:', error);
+        res.status(500).json({ error: 'Server error during registration' });
+    }
+};
+
+// @desc    Step 2 — Verify OTP and create the account
+// @route   POST /api/auth/verify-otp
+// @access  Public
+export const verifyOtp = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+
+        if (!email || !otp) {
+            return res.status(400).json({ error: 'Email and OTP are required' });
+        }
+
+        // Find the most recent OTP for this email
+        const otpDoc = await Otp.findOne({ email }).sort({ createdAt: -1 });
+        if (!otpDoc) {
+            return res.status(400).json({ error: 'OTP expired or not found. Use /register to request a new one' });
+        }
+
+        // Verify the OTP
+        const isValid = await otpDoc.compareOtp(otp);
+        if (!isValid) {
+            return res.status(400).json({ error: 'Invalid OTP. Try again or request a new one' });
+        }
+
+        // Double-check username/email are still available (race condition guard)
+        const existingUser = await User.findOne({
+            $or: [{ email: otpDoc.email }, { username: otpDoc.username }]
+        });
+        if (existingUser) {
+            await Otp.deleteMany({ email });
+            return res.status(400).json({
+                error: existingUser.username === otpDoc.username
+                    ? 'Username was taken while verifying. Try a different username'
+                    : 'Email was registered while verifying'
+            });
+        }
+
+        // Create the user (password is already hashed)
+        const user = new User({
+            username: otpDoc.username,
+            email: otpDoc.email,
+            password: 'placeholder',     // will be overwritten below
+            isEmailVerified: true
+        });
+        // Directly set the pre-hashed password, skipping the pre-save hook
+        user.password = otpDoc.password;
+        await user.save({ validateBeforeSave: false });
+
+        // Create game progress
         const gameProgress = new GameProgress({ user: user._id, currentLevel: 1 });
         await gameProgress.save();
-
-        // Link progress to user
         user.gameProgress = gameProgress._id;
-        await user.save();
 
         // Generate tokens
         const { accessToken, refreshToken } = generateTokens(user._id);
         user.refreshToken = refreshToken;
-        await user.save();
+        await user.save({ validateBeforeSave: false });
+
+        // Clean up OTP docs
+        await Otp.deleteMany({ email });
 
         res.status(201).json({
-            message: 'User registered successfully',
+            message: 'Account verified and created',
             user: { id: user._id, username: user.username },
             accessToken,
             refreshToken,
             currentLevel: 1
         });
     } catch (error) {
-        console.error('Register error:', error);
-        res.status(500).json({ error: 'Server error during registration' });
+        console.error('Verify OTP error:', error);
+        res.status(500).json({ error: 'Server error during verification' });
     }
 };
 

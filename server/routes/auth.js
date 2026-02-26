@@ -1,11 +1,11 @@
 import express from 'express';
 import { body } from 'express-validator';
-import { register, login, refresh, logout, getMe } from '../controllers/authController.js';
+import { register, verifyOtp, login, refresh, logout, getMe } from '../controllers/authController.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Validation rules — simplified for terminal command-style registration (no email)
+// Validation rules
 const registerValidation = [
     body('username')
         .trim()
@@ -13,9 +13,24 @@ const registerValidation = [
         .withMessage('Username must be 3–20 characters')
         .matches(/^[a-zA-Z0-9_]+$/)
         .withMessage('Username can only contain letters, numbers, and underscores'),
+    body('email')
+        .trim()
+        .isEmail()
+        .withMessage('Valid email is required')
+        .normalizeEmail(),
     body('password')
         .isLength({ min: 6 })
         .withMessage('Password must be at least 6 characters')
+];
+
+const verifyOtpValidation = [
+    body('email').trim().isEmail().withMessage('Valid email is required'),
+    body('otp')
+        .trim()
+        .isLength({ min: 6, max: 6 })
+        .withMessage('OTP must be 6 digits')
+        .isNumeric()
+        .withMessage('OTP must contain only digits')
 ];
 
 const loginValidation = [
@@ -25,6 +40,7 @@ const loginValidation = [
 
 // Public routes
 router.post('/register', registerValidation, register);
+router.post('/verify-otp', verifyOtpValidation, verifyOtp);
 router.post('/login', loginValidation, login);
 router.post('/refresh', refresh);
 
