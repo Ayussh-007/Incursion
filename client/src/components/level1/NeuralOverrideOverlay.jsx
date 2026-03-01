@@ -7,8 +7,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function NeuralOverrideOverlay({ onDismiss }) {
-    const [countdown, setCountdown] = useState(10);
+export default function NeuralOverrideOverlay({ onDismiss, cooldownSeconds = 10 }) {
+    const [countdown, setCountdown] = useState(cooldownSeconds);
 
     const dismiss = useCallback(() => onDismiss?.(), [onDismiss]);
 

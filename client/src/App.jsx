@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import './styles/index.css';
 
 // Pages
+const LandingPage = lazy(() => import('./pages/LandingPage'));
 const TerminalPage = lazy(() => import('./pages/TerminalPage'));
 const MissionPage = lazy(() => import('./pages/MissionPage'));
 const LevelPage = lazy(() => import('./pages/LevelPage'));
@@ -31,11 +32,13 @@ function App() {
     <div className="app">
       <Suspense fallback={<LoadingScreen />}>
         <Routes>
-          {/* ── Entry point: login terminal ──────────────────────── */}
-          <Route path="/" element={<TerminalPage />} />
-          <Route path="/terminal" element={<Navigate to="/" replace />} />
+          {/* ── Entry: INCURSION cinematic landing ────────────────── */}
+          <Route path="/" element={<LandingPage />} />
 
-          {/* ── Pre-level mission flow (cutscene → aegis → char-intro) ── */}
+          {/* ── Login terminal (after landing transition) ─────────── */}
+          <Route path="/terminal" element={<TerminalPage />} />
+
+          {/* ── Mission flow: cutscene → AEGIS → char-intro ──────── */}
           <Route path="/mission" element={<MissionPage />} />
 
           {/* ── Protected level routes ──────────────────────────── */}

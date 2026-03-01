@@ -526,4 +526,3 @@ export default function Level1Scene() {
     );
 }
 
-export default Level1Scene;

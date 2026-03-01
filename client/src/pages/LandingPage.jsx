@@ -24,7 +24,16 @@ function LoadingScreen({ text = 'INITIALIZING...' }) {
 
 export default function LandingPage() {
     const currentScene = useGameStore((s) => s.currentScene);
+    const setScene = useGameStore((s) => s.setScene);
+    const setTitleFractured = useGameStore((s) => s.setTitleFractured);
     const navigate = useNavigate();
+
+    // Always reset to INTRO when this page mounts, so returning here
+    // restarts the cinematic flow from scratch
+    useEffect(() => {
+        setScene('INTRO');
+        setTitleFractured(false);
+    }, [setScene, setTitleFractured]);
 
     // When the Zustand store reaches 'LOGIN' state, navigate to /terminal
     useEffect(() => {
